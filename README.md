@@ -2,7 +2,7 @@
 This tool allows you to render out a Widget (Page Builder) Page as a Partial.
 
 ## Installation
-Install the Nuget Package on the MVC Site
+Install the `PartialWidgetPage.Kentico.MVC` Nuget Package on the MVC Site
 
 ## Usage
 
