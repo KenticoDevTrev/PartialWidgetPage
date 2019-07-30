@@ -42,3 +42,14 @@ You can pass either a custom Path, or a NodeAliasPath.
 The normal method will perform a client side `DownloadString(Url)` on the page and return the content, this is done syncly so the content is there upon page load.
 
 The ajax method is also available which will pull in the content through an ajax call client side.
+
+# Contributions, but fixes and License
+Feel free to Fork and submit pull requests to contribute.
+
+You can submit bugs through the issue list and i will get to them as soon as i can, unless you want to fix it yourself and submit a pull request!
+
+This is free to use and modify!
+
+# Compatability
+Can be used on any Kentico 12 SP site (hotfix 29 or above).
+
