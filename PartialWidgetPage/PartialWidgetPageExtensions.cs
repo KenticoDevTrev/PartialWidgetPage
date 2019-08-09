@@ -115,13 +115,13 @@ public static class PartialWidgetPageExtensions
     public static string LayoutIfEditMode(this HtmlHelper helper, string SharedLayoutPath, string RenderAsPartialUrlParameter)
     {
         string Url = HttpContext.Current.Request.RawUrl;
-        bool RenderPartial = !HttpContext.Current.Kentico().PageBuilder().EditMode;
+        bool RenderAsPartial = !HttpContext.Current.Kentico().PageBuilder().EditMode;
         if (Url.ToLower().Contains(RenderAsPartialUrlParameter.ToLower()))
         {
             string ParamVal = URLHelper.GetUrlParameter(Url, RenderAsPartialUrlParameter);
-            RenderPartial = string.IsNullOrWhiteSpace(ParamVal) || (ValidationHelper.GetBoolean(ParamVal, false) == true);
+            RenderAsPartial = string.IsNullOrWhiteSpace(ParamVal) || (ValidationHelper.GetBoolean(ParamVal, false) == true);
         }
-        return (RenderPartial ? null : SharedLayoutPath);
+        return (RenderAsPartial ? null : SharedLayoutPath);
     }
 
     /// <summary>
