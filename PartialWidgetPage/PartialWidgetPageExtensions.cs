@@ -61,7 +61,7 @@ public static class PartialWidgetPageExtensions
         string DivID = Guid.NewGuid().ToString().Replace("-", "");
         string Content = $"<div id=\"Partial-{DivID}\"></div>" +
             $"<script type=\"text/javascript\">" +
-            $"var PartialContainer_{DivID} = document.getElementById('Partial-{DivID}'); " +
+            $"(function() {{ var PartialContainer_{DivID} = document.getElementById('Partial-{DivID}'); " +
             $"var RequestObj = (XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');" +
             $"RequestObj.open('GET', '{url}', true);" +
             $"RequestObj.send();" +
@@ -69,7 +69,7 @@ public static class PartialWidgetPageExtensions
             $"  if(RequestObj.readyState == 4) {{" +
             $"     PartialContainer_{DivID}.innerHTML = (RequestObj.status == 200) ? RequestObj.responseText : '<!-- Error retrieving page content at {url} -->';" +
             $"  }}" +
-            $"}};" +
+            $"}};}})();" +
             $"</script>";
         return new HtmlString(Content);
     }
