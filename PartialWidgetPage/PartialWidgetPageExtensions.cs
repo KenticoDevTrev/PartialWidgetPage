@@ -5,6 +5,7 @@ using CMS.Localization;
 using CMS.SiteProvider;
 using Kentico.PageBuilder.Web.Mvc;
 using Kentico.Web.Mvc;
+using PartialWidgetPage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +32,7 @@ public static class PartialWidgetPageExtensions
     /// <returns>The rendered content</returns>
     public static HtmlString PartialWidgetPage(this HtmlHelper helper, string Path, string RenderAsPartialUrlParameter = null, bool PathIsNodeAliasPath = false)
     {
-        using (WebClient client = new WebClient())
+        using (CookieAwareWebClient client = new CookieAwareWebClient(HttpContext.Current.Request))
         {
             string url = GetRequestUrl(Path, RenderAsPartialUrlParameter, PathIsNodeAliasPath);
             try

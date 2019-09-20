@@ -526,6 +526,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CookieAwareClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="PartialWidgetPageModel.cs" />
     <Compile Include="PartialWidgetPageWidget.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

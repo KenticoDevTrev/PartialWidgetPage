@@ -10,7 +10,7 @@
     <iconUrl>https://raw.githubusercontent.com/Kentico/devnet.kentico.com/master/marketplace/assets/generic-integration.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Ajax partial widget adjusted to be a self-contained function so can do multiple partials on same page, updated Assembly to be SemVer format</releaseNotes>
+    <releaseNotes>Server side WebClient was sending requests without Cookies, thus security would not work.  Modified to copy the current request's cookies to include in request.</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>Kentico MVC Page Builder Placeholder</tags>
     <dependencies>
