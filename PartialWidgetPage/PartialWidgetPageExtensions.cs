@@ -24,13 +24,21 @@ public static class PartialWidgetPageExtensions
 
     /// <summary>
     /// Pulls in the given path's content, rendering the widget content as well.  Target's View must have a Layout = Html.LayoutIfEditMode() or Layout = Html.LayoutIfEditMode("RenderAsPartialUrlParameter")
+    /// Access to ASP.NET session state is exclusive per session, which means that if two different users make concurrent requests, access to each separate session is granted concurrently. 
+    /// However, if two concurrent requests are made for the same session (by using the same SessionID value), the first request gets exclusive access to the session information. 
+    /// The second request executes only after the first request is finished. (The second session can also get access if the exclusive lock on the information is freed because the first request exceeds the lock time-out.) 
+    /// If the EnableSessionState value in the @ Page directive is set to ReadOnly, a request for the read-only session information does not result in an exclusive lock on the session data. 
+    /// However, read-only requests for session data might still have to wait for a lock set by a read-write request for session data to clear.  
+    /// Here is the mvc readonly attribute.  [SessionState(SessionStateBehavior.ReadOnly)]
+    /// See https://docs.microsoft.com/en-us/previous-versions/ms178581(v=vs.140)?redirectedfrom=MSDN#concurrent-requests-and-session-state for more info.
     /// </summary>
     /// <param name="helper">The HTML Helper</param>
     /// <param name="Path">The Path to render (relative)</param>
     /// <param name="RenderAsPartialUrlParameter">If needed, the Url Parameter that indicates the view should be rendered as a partial see (Html.LayoutIfEditMode(string SharedLayoutPath, string RenderAsPartialUrlParameter))</param>
     /// <param name="PathIsNodeAliasPath">If true, then the Relative Url will be derived from the NodeAliasPath Give.</param>
+    /// <param name="stripSession">If false the session will not be stripped from the request allowing you override the session locking bypass.</param>
     /// <returns>The rendered content</returns>
-    public static HtmlString PartialWidgetPage(this HtmlHelper helper, string Path, string RenderAsPartialUrlParameter = null, bool PathIsNodeAliasPath = false)
+    public static HtmlString PartialWidgetPage(this HtmlHelper helper, string Path, string RenderAsPartialUrlParameter = null, bool PathIsNodeAliasPath = false, bool stripSession = true)
     {
         using (CookieAwareWebClient client = new CookieAwareWebClient(HttpContext.Current.Request))
         {
