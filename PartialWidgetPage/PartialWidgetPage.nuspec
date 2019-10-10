@@ -10,7 +10,7 @@
     <iconUrl>https://raw.githubusercontent.com/Kentico/devnet.kentico.com/master/marketplace/assets/generic-integration.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Server side WebClient was sending requests without Cookies, thus security would not work.  Modified to copy the current request's cookies to include in request.</releaseNotes>
+    <releaseNotes>Add property to Strip Session Cookie from Client-side call, since requests will (unless specified) create a read/write lock on the Session, thus causing timeouts.  It can be overwritten if desired.</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>Kentico MVC Page Builder Placeholder</tags>
     <dependencies>

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -15,7 +17,8 @@ namespace PartialWidgetPage
         public CookieContainer CookieContainer { get; set; }
         public Uri Uri { get; set; }
         public string RequestUserAgent { get; set; }
-        public bool StripSession { get; set; }
+
+        private const string _SessionIDCookie = "ASP.NET_SessionId";
 
         public CookieAwareWebClient()
             : this(new CookieContainer())
@@ -26,28 +29,44 @@ namespace PartialWidgetPage
         /// Creates web client with cookies
         /// </summary>
         /// <param name="cookies"></param>
-        public CookieAwareWebClient(CookieContainer cookies, bool stripSession = true)
+        /// <param name="stripSession">Strips the ASP.Net_SessionId because by default Sessions have a lock on them, so additional requests during the initial request will cause a timeout. Can override, however must make sure initial request has a read-only session attribute</param>
+        public CookieAwareWebClient(CookieContainer cookies)
         {
             CookieContainer = cookies;
-            StripSession = stripSession;
         }
+
+
 
         /// <summary>
         /// Creates web client with the cookies of the given Request
         /// </summary>
         /// <param name="CurrentRequest">The current request to copy cookie from</param>
-        public CookieAwareWebClient(HttpRequest CurrentRequest, bool stripSession = true)
+        /// <param name="stripSession">Strips the ASP.Net_SessionId because by default Sessions have a lock on them, so additional requests during the initial request will cause a timeout. Can override, however must make sure initial request has a read-only session attribute</param>
+
+        public CookieAwareWebClient(HttpRequest CurrentRequest, bool StripSession = true)
         {
-            StripSession = stripSession;
             // Copy Cookies
             CookieContainer cookieJar = new CookieContainer();
-            foreach (string CookieKey in CurrentRequest.Cookies?.AllKeys)
+
+            // Get list of cookies
+            List<string> CookieKeys = CurrentRequest.Cookies?.AllKeys.ToList();
+            if (StripSession)
             {
-                if (CookieKey != "ASP.NET_SessionId" || !stripSession)
+                CookieKeys.RemoveAll(x => x.Equals(_SessionIDCookie, StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            foreach (string CookieKey in CookieKeys)
+            {
+                if (!StripSession || !CookieKey.Equals(_SessionIDCookie, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var Cookie = CurrentRequest.Cookies[CookieKey];
-                    // CookieContainer requires a domain. so if it's empty, then use the Current Request's Host
-                    cookieJar.Add(new Cookie(CookieKey, Cookie.Value, Cookie.Path, string.IsNullOrWhiteSpace(Cookie.Domain) ? CurrentRequest.Url.Host : Cookie.Domain));
+
+                    // CookieContainer requires a domain. so if it's empty, then use the Current Request's Host / Authority.
+                    string Domain = string.IsNullOrWhiteSpace(Cookie.Domain) ? (CurrentRequest.IsLocal ? CurrentRequest.Url.Authority : CurrentRequest.Url.Host) : Cookie.Domain;
+                    if (!string.IsNullOrWhiteSpace(Domain))
+                    {
+                        cookieJar.Add(new Cookie(CookieKey, Cookie.Value, Cookie.Path, Domain));
+                    }
                 }
             }
             CookieContainer = cookieJar;
@@ -81,5 +100,6 @@ namespace PartialWidgetPage
 
             return response;
         }
+
     }
 }
