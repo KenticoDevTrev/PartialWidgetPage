@@ -10,14 +10,14 @@
     <iconUrl>https://raw.githubusercontent.com/Kentico/devnet.kentico.com/master/marketplace/assets/generic-integration.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Add property to Strip Session Cookie from Client-side call, since requests will (unless specified) create a read/write lock on the Session, thus causing timeouts.  It can be overwritten if desired.</releaseNotes>
-    <copyright>Copyright 2019</copyright>
+    <releaseNotes>Add property to strip session cookie from client-side call, since requests will (unless specified) create a read/write lock on the session, thus causing timeouts. It can be overwritten if desired.</releaseNotes>
+    <copyright>Copyright 2020</copyright>
     <tags>Kentico MVC Page Builder Placeholder</tags>
     <dependencies>
-      <dependency id="Kentico.Libraries" version="12.0.29" />
+      <dependency id="Kentico.AspNet.Mvc.Libraries" version="12.0.29" />
     </dependencies>
   </metadata>
   <files>
-	<file src="Views\Shared\Widgets\PartialWidgetPage\_PartialWidgetPage.cshtml" target = "Content\Views\Shared\Widgets\PartialWidgetPage" />
+	<file src="Views\Shared\Widgets\PartialWidgetPage\_PartialWidgetPage.cshtml" target="Content\Views\Shared\Widgets\PartialWidgetPage" />
   </files>
 </package>

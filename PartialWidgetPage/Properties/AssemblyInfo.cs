@@ -6,11 +6,11 @@ using CMS;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Partial Widget Page")]
-[assembly: AssemblyDescription("Allows you to render another Page's content (including widgets)")]
+[assembly: AssemblyDescription("Allows you to render another page's content (including widgets)")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Heartland Business Systems")]
 [assembly: AssemblyProduct("PartialWidgetPage")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyDiscoverable]
