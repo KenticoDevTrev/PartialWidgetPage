@@ -267,9 +267,6 @@
     <Reference Include="Kentico.Content.Web.Mvc, Version=12.0.0.0, Culture=neutral, PublicKeyToken=834b12a258f213f9, processorArchitecture=MSIL">
       <HintPath>..\..\..\Kentico12\packages\Kentico.AspNet.Mvc.Libraries.12.0.29\lib\net461\Kentico.Content.Web.Mvc.dll</HintPath>
     </Reference>
-    <Reference Include="Kentico.Content.Web.Mvc.Views, Version=12.0.0.0, Culture=neutral, PublicKeyToken=834b12a258f213f9, processorArchitecture=MSIL">
-      <HintPath>..\..\..\Kentico12\packages\Kentico.AspNet.Mvc.12.0.29\lib\net461\Kentico.Content.Web.Mvc.Views.dll</HintPath>
-    </Reference>
     <Reference Include="Kentico.Membership, Version=12.0.0.0, Culture=neutral, PublicKeyToken=834b12a258f213f9, processorArchitecture=MSIL">
       <HintPath>..\..\..\Kentico12\packages\Kentico.AspNet.Mvc.Libraries.12.0.29\lib\net461\Kentico.Membership.dll</HintPath>
     </Reference>
@@ -550,9 +547,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\Kentico12\packages\Kentico.LanguagePack.English.12.0.29\build\Kentico.LanguagePack.English.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Kentico12\packages\Kentico.LanguagePack.English.12.0.29\build\Kentico.LanguagePack.English.targets'))" />
-    <Error Condition="!Exists('..\..\..\Kentico12\packages\Kentico.AspNet.Mvc.12.0.29\build\Kentico.AspNet.Mvc.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Kentico12\packages\Kentico.AspNet.Mvc.12.0.29\build\Kentico.AspNet.Mvc.targets'))" />
   </Target>
-  <Import Project="..\..\..\Kentico12\packages\Kentico.AspNet.Mvc.12.0.29\build\Kentico.AspNet.Mvc.targets" Condition="Exists('..\..\..\Kentico12\packages\Kentico.AspNet.Mvc.12.0.29\build\Kentico.AspNet.Mvc.targets')" />
   <!--<PropertyGroup>
     <PostBuildEvent>(robocopy "$(SolutionDir)ToolsMVC\Views\Shared\Widgets\PartialWidgetPage" "$(ProjectDir)Views\Shared\Widgets\PartialWidgetPage") ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0</PostBuildEvent>
   </PropertyGroup>-->
