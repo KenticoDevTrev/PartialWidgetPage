@@ -127,11 +127,61 @@ public static class PartialWidgetPageExtensions
     }
 
     /// <summary>
+    /// Gets the relative URL from the node GUID.
+    /// </summary>
+    /// <param name="nodeGuid">The node GUID.</param>
+    /// <returns></returns>
+    public static string NodeGuidToUrl(Guid nodeGuid)
+    {
+        return CacheHelper.Cache
+        (
+            cs =>
+            {
+                // get proper URL path for the given document
+                var docQuery = DocumentHelper
+                    .GetDocuments()
+                    .WhereEquals("NodeGUID", nodeGuid)
+                    .CombineWithDefaultCulture()
+                    .OnCurrentSite()
+                    .TopN(1);
+                if (LocalizationContext.CurrentCulture != null)
+                    docQuery.Culture(LocalizationContext.CurrentCulture.CultureCode);
+
+                var treeNode = docQuery.FirstOrDefault();
+                if (treeNode != null)
+                {
+                    if (cs.Cached)
+                    {
+                        cs.CacheDependency = CacheHelper.GetCacheDependency
+                        (
+                            new[]
+                            {
+                                "cms.document|byid|"+treeNode.DocumentID,
+                                "cms.class|byname|"+treeNode.ClassName
+                            }
+                        );
+                    }
+                    return treeNode.RelativeURL;
+                }
+                return null;
+            },
+            new CacheSettings
+            (
+                CacheHelper.CacheMinutes(SiteContext.CurrentSiteName),
+                "PartialWidgetGetUrlFromGuid",
+                nodeGuid,
+                SiteContext.CurrentSiteName,
+                LocalizationContext.CurrentCulture?.CultureCode
+            )
+        );
+    }
+
+    /// <summary>
     /// Gets the relative URL from the node alias path.
     /// </summary>
     /// <param name="nodeAliasPath">The node alias path.</param>
     /// <returns></returns>
-    public static string NodeAliasPathToUrl(string nodeAliasPath)
+    private static string NodeAliasPathToUrl(string nodeAliasPath)
     {
         return CacheHelper.Cache
         (

@@ -1,6 +1,7 @@
 ﻿using Kentico.Components.Web.Mvc.FormComponents;
 using Kentico.Forms.Web.Mvc;
 using Kentico.PageBuilder.Web.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,8 +9,8 @@ namespace PartialWidgetPage
 {
     public class PartialWidgetPageModel : IWidgetProperties
     {
-        [EditingComponent(PathSelector.IDENTIFIER, Order = 0, Label = "Path", Tooltip = "The page to render, the URL will be determined by the page type's URL pattern")]
-        public IList<PathSelectorItem> Path { get; set; }
+        [EditingComponent(PageSelector.IDENTIFIER, Label = "Page", Order = 0, Tooltip = "The page to render, the URL will be determined by the page type's URL pattern")]
+        public IList<PageSelectorItem> Page { get; set; }
 
         [EditingComponent(TextInputComponent.IDENTIFIER, Order = 1, Label = "Custom URL", Tooltip = "The relative URL to render")]
         public string CustomUrl { get; set; }
@@ -29,8 +30,8 @@ namespace PartialWidgetPage
             {
                 if (!string.IsNullOrWhiteSpace(CustomUrl))
                     return CustomUrl;
-                if (Path != null && Path.Count > 0 && !string.IsNullOrWhiteSpace(Path.First().NodeAliasPath))
-                    return PartialWidgetPageExtensions.NodeAliasPathToUrl(Path.First().NodeAliasPath);
+                if (Page != null && Page.Count > 0 && Page.First().NodeGuid != Guid.Empty)
+                    return PartialWidgetPageExtensions.NodeGuidToUrl(Page.First().NodeGuid);
                 return null;
             }
         }
