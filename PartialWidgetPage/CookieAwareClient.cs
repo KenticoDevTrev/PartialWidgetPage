@@ -66,7 +66,7 @@ namespace PartialWidgetPage
 
                     if (!string.IsNullOrWhiteSpace(Domain))
                     {
-	                    cookieJar.Add(CurrentRequest.IsLocal ? new Cookie(CookieKey, Cookie.Value, Cookie.Path, Domain) { Port = $@"""{CurrentRequest.Url.Port}""" } : new Cookie(CookieKey, Cookie.Value, Cookie.Path, Domain));
+	                    cookieJar.Add(new Cookie(CookieKey, Cookie.Value, Cookie.Path, Domain) { Port = CurrentRequest.IsLocal ? $@"""{CurrentRequest.Url.Port}""" : "" });
                     }
                 }
             }
