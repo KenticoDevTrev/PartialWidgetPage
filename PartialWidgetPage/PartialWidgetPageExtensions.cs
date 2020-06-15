@@ -40,7 +40,7 @@ public static class PartialWidgetPageExtensions
     /// <returns>The rendered content</returns>
     public static HtmlString PartialWidgetPage(this HtmlHelper helper, string Path, string RenderAsPartialUrlParameter = null, bool PathIsNodeAliasPath = false, bool stripSession = true)
     {
-        using (CookieAwareWebClient client = new CookieAwareWebClient(HttpContext.Current.Request))
+        using (CookieAwareWebClient client = new CookieAwareWebClient(HttpContext.Current.Request, stripSession))
         {
             string url = GetRequestUrl(Path, RenderAsPartialUrlParameter, PathIsNodeAliasPath);
             try

@@ -61,11 +61,12 @@ namespace PartialWidgetPage
                 {
                     var Cookie = CurrentRequest.Cookies[CookieKey];
 
-                    // CookieContainer requires a domain. so if it's empty, then use the Current Request's Host / Authority.
-                    string Domain = string.IsNullOrWhiteSpace(Cookie.Domain) ? (CurrentRequest.IsLocal ? CurrentRequest.Url.Authority : CurrentRequest.Url.Host) : Cookie.Domain;
+                    // CookieContainer requires a domain. so if it's empty, then use the Current Request's Host.
+                    string Domain = string.IsNullOrWhiteSpace(Cookie.Domain) ? CurrentRequest.Url.Host : Cookie.Domain;
+
                     if (!string.IsNullOrWhiteSpace(Domain))
                     {
-                        cookieJar.Add(new Cookie(CookieKey, Cookie.Value, Cookie.Path, Domain));
+						cookieJar.Add(new Cookie(CookieKey, Cookie.Value, Cookie.Path, Domain) { Port = CurrentRequest.IsLocal ? $@"""{CurrentRequest.Url.Port}""" : "" });
                     }
                 }
             }
