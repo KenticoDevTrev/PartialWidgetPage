@@ -51,7 +51,7 @@ namespace PartialWidgetPage
                         // CookieContainer requires a domain, so if it's empty, then use the current request's host/authority.
                         var domain = string.IsNullOrWhiteSpace(cookie.Domain) ? currentRequest.IsLocal ? currentRequest.Url.Authority : currentRequest.Url.Host : cookie.Domain;
                         if (!string.IsNullOrWhiteSpace(domain))
-                            cookieJar.Add(new Cookie(cookieKey, cookie.Value, cookie.Path, domain));
+                            cookieJar.Add(new Cookie(cookieKey, cookie.Value, cookie.Path, domain) { Port = CurrentRequest.IsLocal ? $@"""{CurrentRequest.Url.Port}""" : "" });
                     }
                 }
             }
