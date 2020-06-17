@@ -97,7 +97,11 @@ public static class PartialWidgetPageExtensions
         {
             Path = NodeAliasPathToUrl(Path);
         }
-        string url = new Uri(HttpContext.Current.Request.Url, Path.Trim('~')).AbsoluteUri;
+        else
+        {
+            Path = AppRelativeToRelativeUrl(Path);
+        }
+        string url = new Uri(HttpContext.Current.Request.Url, Path).AbsoluteUri;
         if (!string.IsNullOrWhiteSpace(RenderAsPartialUrlParameter))
         {
             string UrlSeparator = url.Contains("?") ? "&" : "?";
@@ -141,7 +145,7 @@ public static class PartialWidgetPageExtensions
     /// <returns></returns>
     public static string NodeAliasPathToUrl(string NodeAliasPath)
     {
-        return CacheHelper.Cache<string>(cs =>
+        string Url = CacheHelper.Cache<string>(cs =>
         {
             // get proper Url path for the given document
             var DocQuery = DocumentHelper.GetDocuments()
@@ -172,6 +176,24 @@ public static class PartialWidgetPageExtensions
                 return null;
             }
         }, new CacheSettings(CacheHelper.CacheMinutes(SiteContext.CurrentSiteName), "PartialWidgetGetUrlFromPath", NodeAliasPath, SiteContext.CurrentSiteName, LocalizationContext.CurrentCulture?.CultureCode));
+        return AppRelativeToRelativeUrl("~" + Url);
+    }
+
+    private static string AppRelativeToRelativeUrl(string Url)
+    {
+        if (Url.StartsWith("~/"))
+        {
+            if (!string.IsNullOrWhiteSpace(HttpContext.Current.Request.ApplicationPath.Trim('/')))
+            {
+                return Url.Replace("~/", $"{HttpContext.Current.Request.ApplicationPath}/");
+            }
+            else
+            {
+                return Url.Replace("~/", "/");
+            }
+        }
+        return Url;
+
     }
 
 }
