@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
+    <id>RKeitel.PartialWidgetPage.Kentico.MVC</id>
     <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
@@ -10,7 +10,7 @@
     <iconUrl>https://raw.githubusercontent.com/Kentico/devnet.kentico.com/master/marketplace/assets/generic-integration.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Add property to Strip Session Cookie from Client-side call, since requests will (unless specified) create a read/write lock on the Session, thus causing timeouts.  It can be overwritten if desired.</releaseNotes>
+    <releaseNotes>Fix Encoding issue.</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>Kentico MVC Page Builder Placeholder</tags>
     <dependencies>

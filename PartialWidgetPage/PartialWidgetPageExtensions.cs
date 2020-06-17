@@ -45,6 +45,7 @@ public static class PartialWidgetPageExtensions
             string url = GetRequestUrl(Path, RenderAsPartialUrlParameter, PathIsNodeAliasPath);
             try
             {
+                client.Encoding = Encoding.UTF8;
                 string Content = client.DownloadString(url);
                 return new HtmlString(Content);
             }
