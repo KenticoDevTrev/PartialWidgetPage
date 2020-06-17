@@ -10,7 +10,7 @@
     <iconUrl>https://raw.githubusercontent.com/Kentico/devnet.kentico.com/master/marketplace/assets/generic-integration.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Add UTF-8 encoding for the download string so special characters are not messed up.</releaseNotes>
+    <releaseNotes>Fix Virtual Directory handling</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>Kentico MVC Page Builder Placeholder</tags>
     <dependencies>
