@@ -164,7 +164,7 @@ public static class PartialWidgetPageExtensions
                 {
                     cs.CacheDependency = CacheHelper.GetCacheDependency(new string[]
                     {
-                        "cms.document|byid|"+TreeNode.DocumentID,
+                        "documentid|"+TreeNode.DocumentID,
                         "cms.class|byname|"+TreeNode.ClassName
                     });
                 }
