@@ -7,11 +7,8 @@ using Kentico.PageBuilder.Web.Mvc;
 using Kentico.Web.Mvc;
 using PartialWidgetPage;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -113,10 +110,11 @@ public static class PartialWidgetPageExtensions
     /// Will return the Shared Layout Path if it's edit mode (so widgets can be edited), otherwise null if it's being pulled in from a partial view.
     /// </summary>
     /// <param name="SharedLayoutPath">The Shared Layout, must NOT contain a Html.PartialWidgetPage of the page that will be rendered or infinite loop will occur.</param>
+    /// <param name="ForceNull">Force a null for the layout (render as a partial), usually gets set to true for inline renderings</param>
     /// <returns>The proper Layout value.</returns>
-    public static string LayoutIfEditMode(this HtmlHelper helper, string SharedLayoutPath)
+    public static string LayoutIfEditMode(this HtmlHelper helper, string SharedLayoutPath, bool ForceNull = false)
     {
-        return (HttpContext.Current.Kentico().PageBuilder().EditMode ? SharedLayoutPath : null);
+        return (!ForceNull && HttpContext.Current.Kentico().PageBuilder().EditMode ? SharedLayoutPath : null);
     }
 
     /// <summary>
