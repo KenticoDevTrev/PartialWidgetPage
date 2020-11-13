@@ -1,118 +1,86 @@
-# Partial Widget Page
-This tool allows you to render out a Widget (Page Builder) Page as a Partial.
 
-## Installation
-Install the Nuget Package on the MVC Site
+# Installation
+## Part 1 - Kentico Application ("Mother"):
 
-## Usage
+1. Install `PageBuilderContainers.Kentico` Nuget Package on your Kentico Application
+1. Rebuild your web application
+1. Log into Kentico as a Global Administrator
+1. Go to Modules
+1. Search and edit `Page Builder Containers`
+1. Go to `Sites` and add to your site.
 
-### Setup Partial-Viewable Content
-On a Page with Kentico's Page Builder Enabled and an Editable Area existing, set the Layout from 
-```
-Layout = "~/Views/Shared/_Layout.cshtml";
-```
- to 
-```
-Layout = Html.LayoutIfEditMode("~/Views/Shared/_layout.cshtml");
-```
+<<<<<<< HEAD
+## Part 2 - Install on MVC Site
 
-This will enable the normal view to be resolved as a partial view, depending on the context.  When visiting through Kentico, EditMode is enabled and the full layout will render, allowing you to add Widgets.
+### For MVC.Net Framework
+=======
+### Note for WebSite vs. WebApp
+If you are upgrading from a previous version of Kentico and your Admin is a WebSite vs. WebApp, you will need to change the following files's top Control tag attribute from "CodeBehind" to "CodeFile" in order for it to work
 
-#### WARNING: INFINITE LOOPS
-Do not use a Layout that renders the page you are editing in itself.  This will cause an infinite loop when editing the page.  If you editing a page that will be used in the Header and Footer, for example, please make a different Layout view that does not have the PartialWidgetPage Html Helpers.
+* CMSModules/PageBuilderContainers/Controls/PageBuilderContainers/General.ascx
+* CMSModules/PageBuilderContainers/Controls/PageBuilderContainers/PageBuilderContainerCode.ascx
+* CMSModules/PageBuilderContainers/UI/PageBuilderContainers/Container_Edit_General.aspx
+* CMSModules/PageBuilderContainers/UI/PageBuilderContainers/Container_Edit_New.aspx
 
-#### Allow page to render as normal page AND Partial View
-If you wish for a page to render as a full page on Live, but also still want to pull this in as a Partial in certain cases, use the following in the View:
+## Part 2 - MVC Site
+>>>>>>> 2f48b707d58338ac7f2ebb0a8dd093ce155bcebf
 
-```
-Layout = Html.LayoutIfEditMode("~/Views/Shared/_layout.cshtml", "RenderAsPartial");
-``` 
-and call it using 
-```
-@Html.PartialWidgetPage("/Route/To/Page", "RenderAsPartial")
-```
+1. Install the `PageBuilderContainers.Kentico.MVC` NuGet package on your MVC Site and rebuild
 
-(or add RenderAsPartial as the `Render as Parital Url Parameter` on the Partial Widget Page widget).  The system will now pass this Url Parameter in it's Render Partial requests.
+### For MVC.Net Core
 
-### Showing Partial Widget Pages
-There are two ways and three methods ways you can render Partial widget pages:
+* Open your MVC.Net core web app, and install this nuget package.
+* In your `_ViewImports.cshtml` file, add `@addTagHelper *, PageBuilderContainers.Kentico.MVC.Core`
+* In your Startup.ConfigureServices, add this implementation: `            services.AddSingleton(typeof(IPageBuilderContainerHelper), typeof(PageBuilderContainerHelper));
+`
 
-#### Methods
+# Add to Widgets
+Have your Widget Properties Model class implement `IPageBuilderContainerProperties`, `IHtmlBeforeAfterContainerProperties` or both.  
 
-| Method         | Description                                                                       | Render Location | Speed                                                                                                                      | Widget | Razor Support | Render in Edit Mode | Output Cache Dependencies                             | Notes                                                                                                             |
-|----------------|-----------------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------------|--------|---------------|---------------------|-------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| Inline         | Switches the Page Builder context to render the partial pages in the same request | Server Side     | Fast - No different than a RenderAction                                                                                    | No     | Yes           | No                  | Shared with main request                              | Requires adding PartialWidgetPageDocumentFinder as implementation of IPartialWidgetPageDocumentFinder to your IoC |
-| Server Request | Makes a server-side web request to load the page html and display                 | Server Side     | Slower - Individual web request made, although still relatively fast.                                                      | Yes    | Yes           | Yes                 | Only DocumentID / NodeID added to cache, nothing else |                                                                                                                   |
-| Ajax           | Makes a client-side web request to load the page html and display                 | Client Side     | Fast-ish - Does not impact request rendering, but content is loaded client side so may be delay in seeing content to users | Yes    | Yes           | Yes                 | Independent request means it has it's own Cache       |                                                                                                                   |
-#### Way 1: Widget
-You can use the Partial Widget Page Widget to pull in content through a normal page builder widget.  The widget only works with **Server Request** and **Ajax** methods.
+You can also inherit from the base classes of `PageBuilderContainers.PageBuilderWidgetProperties` or `PageBuilderContainers.PageBuilderWithHtmlBeforeAfterWidgetProperties` if you wish as these already have the proper `[EditingFormComponent]` Attributes for each field
 
-#### Way 2: In Razor View
-** Server Request Method**
-`@Html.PartialWidgetPage` allows you to pull in with a Server Request
-You can pass either a custom Path, or a NodeAliasPath. 
+This tool includes a Form Component for selecting the Container Name:
+       `[EditingComponent(PageBuilderContainerSelectorComponent.IDENTIFIER, Order = 990, Label = "Container Name")]`
+       
+# Add to Models
+You can also have models inherit the `IPageBuilderContainerProperties` and/or `IHtmlBeforeAfterContainerProperties` and leverate containers for other objects, you just won't be able to use the Widget configurations.
 
-** Ajax Method**
-`@Html.PartialWidgetPageAjax` allows you to pull in with a client side Ajax Request (Ajax Method)
-You can pass either a custom Path, or a NodeAliasPath. 
+# Usage
 
-**Inline Method**
-In order to do the Inline method, you first must wire up the `PartialWidgetPageDocumentFinder` as the implementation of `IPartialWidgetPageDocumentFinder`, for example using AutoFac: `builder.RegisterType<PartialWidgetPageDocumentFinder>().As<IPartialWidgetPageDocumentFinder>()`
+## For MVC.Net Framework
+In your Widget's View, add `@Html.PageBuilderContainerBefore(Model)` at the beginning of your rendering, and `@Html.PageBuilderContainerAfter(Model)` at the end
+- Note: "Model" must be the Widget Property Class object, if using a model of `ComponentViewModel<YourWidgetModelClass>`, then your property may be `Model.Properties` instead of `Model`
 
-Then you can use any one of these methods to render by NodeGuid, NodeID, or NodeAliasPath
+Additionally you can pass any Model that inherites from either `IPageBuilderContainerProperties` or `IHtmlBeforeAfterContainerProperties`
 
-``` csharp
-@* public ActionResult RenderFromViewByDocumentGuid(Guid DocumentGuid, string ControllerName, string ActionName = "Index", int? CurrentDocumentsID = null) *@
-        @{ Html.RenderAction("RenderFromViewByDocumentGuid", "PartialWidgetPage", new { DocumentGuid = new Guid("f860cfbd-5423-4769-8f9d-2d2f833d9575"), ControllerName = "PartialWidgetPageTestChild", ActionName = "Index" }); }
-```
-``` csharp
-@* public ActionResult RenderFromViewByPath(string NodeAliasPath, string ControllerName, string ActionName = "Index", string SiteName = null, string Culture = null, int? CurrentDocumentsID = null) *@
-        @{ Html.RenderAction("RenderFromViewByPath", "PartialWidgetPage", new { NodeAliasPath = "Child2", ControllerName = "PartialWidgetPageTestChild", ActionName = "Index", SiteName = "Baseline", Culture = "en-US" }); }
-```
-``` csharp
-@* public ActionResult RenderFromViewByNodeGuid(Guid NodeGuid, string ControllerName, string ActionName = "Index", string Culture = null, int? CurrentDocumentsID = null) *@
-        @{ Html.RenderAction("RenderFromViewByNodeGuid", "PartialWidgetPage", new { NodeGuid = new Guid("b8dfc82d-a6bf-4d13-a723-93020e25d386"), ControllerName = "PartialWidgetPageTestChild", ActionName = "Index", Culture = "en-US" }); }
+## For MVC.Net Core
+.Net Core leverages TagHelpers and includes a custom containered class.
 
+In your razor views, use the `<containered></containered>` tag as such:
+
+```html
+<!-- Example of manually setting container, title, class, and custom content -->
+<containered container-name="TestContainer" container-title="Test Title" container-css-class="SomeClass" container-custom-content="Custom Content">
+	The Stuff that is to be wrapped
+</containered>
+
+<!-- Example of passing a model that inherits either IPageBuilderContainerProperties and/or IHtmlBeforeAfterContainerProperties -->
+<containered container-name="TestContainer" container-model="Model.ContainerModelItem">
+	The Stuff that is to be wrapped
+</containered>
 ```
 
-These methods render the view inline.  It requires a call to an Action Method that accepts `int DocumentID` or `int? DocumentID`, as the Partial widget system will pass the documentID to that method to render.  It takes care of setting the Page Builder context and resetting it after.
+# Create Containers
+1. Go to the Page Builder Containers UI element in Kentico
+1. Create your Containers or edit existing. 
+1. You can use `{% ContainerTitle %}`, `{% ContainerCSSClass %}`, and `{% ContainerCustomContent %}` as part of the default Container Properties
 
-Here is an example method:
+# Add Widget and Configure Container
+1. Add your widget to a Page Builder Area in Kentico, you will see the Containers Name, Title, CSS Class, and Custom Content properties in the Widget's configuration dialog (cogwheel icon)
 
-``` csharp
-// GET: PartialWidgetPageTestChild
-        public ActionResult Index(int? DocumentID)
-        {
-            if (DocumentID.HasValue)
-            {
-                // Rendered through Partial Widget Page, Document context already set
-                return View();
-            }
-            else
-            {
-                // Rendering through normal way
-                ITreeNode FoundNode = _DynamicRouteHelper.GetPage();
+# Acknowledgement, Contributions, bug fixes and License
 
-                if (FoundNode != null)
-                {
-                    HttpContext.Kentico().PageBuilder().Initialize(FoundNode.DocumentID);
-                    return View();
-                }
-                else
-                {
-                    return HttpNotFound();
-                }
-            }
-        }
-```
-
-# Contributions, bug fixes and License
-Feel free to Fork and submit pull requests to contribute.
-
-You can submit bugs through the issue list and i will get to them as soon as i can, unless you want to fix it yourself and submit a pull request!
-
-This is free to use and modify!
+This tool is free for all to use.
 
 # Compatability
-Can be used on any Kentico 12 SP site (hotfix 29 or above).
-
+Can be used on any Kentico 12 SP site (hotfix 29 or above), and Kentico 13 (both .Net Core and .Net)
