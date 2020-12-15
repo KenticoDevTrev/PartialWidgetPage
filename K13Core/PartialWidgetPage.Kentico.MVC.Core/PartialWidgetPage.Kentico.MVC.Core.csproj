@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>13.0.0</Version>
+    <Authors>Trevor Fayas</Authors>
+    <Company>Heartland Business Systems</Company>
+    <Product>Partial Widget Page</Product>
+    <Description>For Kentico 13 .net Core only, provides tag helpers and interfaces to be able to render other pages (with widgets) in your page.  Useful for things like Mega Menus, editable header/footers, Tabs, accordions, etc.</Description>
+    <Copyright>Heartland Business Systems</Copyright>
+    <PackageProjectUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</PackageProjectUrl>
+    <PackageIcon>hbs-favicon-96x96.png</PackageIcon>
+    <RepositoryUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageTags>Kentico, 13, Page Builder, Widgets</PackageTags>
+    <PackageReleaseNotes>Initial build for .net Core</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Kentico.Xperience.AspNetCore.WebApp" Version="13.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\hbs-favicon-96x96.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>13.0.0</Version>
+    <Authors>Trevor Fayas</Authors>
+    <Company>Heartland Business Systems</Company>
+    <Product>Partial Widget Page Widget</Product>
+    <Description>For Kentico 13 .net Core only, this is the widget that leverages the PartialWidgetPage.Kentico.MVC.Core libraries, allowing you to render pages through a widget</Description>
+    <Copyright>Heartland Business Systems</Copyright>
+    <PackageProjectUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</RepositoryUrl>
+    <PackageIcon>hbs-favicon-96x96.png</PackageIcon>
+    <RepositoryType></RepositoryType>
+    <PackageTags>Kentico, Page Builder, Partial, Widgets</PackageTags>
+    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Kentico.Xperience.AspNetCore.WebApp" Version="13.0.0" />
+    <PackageReference Include="Kentico.Xperience.Libraries" Version="13.0.0" />
+    <PackageReference Include="PartialWidgetPage.Kentico.MVC.Core" Version="13.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\hbs-favicon-96x96.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+
+</Project>
