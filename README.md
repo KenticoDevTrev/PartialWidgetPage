@@ -165,9 +165,9 @@ You can render your content in one of two ways.
 ### AJAX Additional Options
 **Custom URL**  This allows you to enter a relative or full URL of the page you wish to retrieve, you can enter any valid Url that your site will render, even if it's a custom route.  This takes priority over the Page Selection if provided.
 
-### IPartialWidgetPageHelper.LayoutIfEditMode
+### IPartialWidgetPageHelper.LayoutIfEditMode/IPartialWidgetPageHelper.LayoutIfNotAjax
 In your rendering View, if you wish to toggle the Layout off during either server side or ajax calls, please use the 
-`Layout = IPartialWidgetPageHelper.LayoutIfEditMode("_Layout")` in your view.  This will return a Null for the layout if it's either not in Edit Mode or if it's being called from the Partial Widget Page's Ajax rendering.  
+`Layout = IPartialWidgetPageHelper.LayoutIfEditMode("_Layout")` in your view for server side, and `Layout = IPartialWidgetPageHelper.LayoutIfNotAjax("_Layout")` if ajax.  This will return a Null for the layout if it's either not in Edit Mode or if it's being called from the Partial Widget Page's Ajax rendering.  
 
 Be aware you may have to add a custom View or logic if you need to do Server Rendering with a partial, but also want it to render with a normal layout on non-edit mode.  However usually this is can be accomplished through your ViewComponent/Action Controller logic, or through a separate view.
 
