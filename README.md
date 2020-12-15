@@ -115,4 +115,3 @@ This is free to use and modify!
 
 # Compatability
 Can be used on any Kentico 12 SP site (hotfix 29 or above).
-
