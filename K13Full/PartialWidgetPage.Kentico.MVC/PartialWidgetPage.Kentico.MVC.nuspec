@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>$id$</id>
+		<version>$version$</version>
+		<title>$title$</title>
+		<authors>$author$</authors>
+		<owners>$author$</owners>
+		<projectUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</projectUrl>
+		<iconUrl>https://raw.githubusercontent.com/Kentico/devnet.kentico.com/master/marketplace/assets/generic-integration.png</iconUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>$description$</description>
+		<releaseNotes/>
+		<copyright>Heartland Business Systems</copyright>
+		<tags>Kentico, Widgets, Partial</tags>
+		<dependencies>
+			<dependency id="Kentico.Xperience.AspNet.Mvc5.Libraries" version="13.0.0" />
+		</dependencies>
+	</metadata>
+	<files>
+		<!-- Include the compiled views dll -->
+		<file src="bin\PartialWidgetPage.Kentico.MVC.Views.dll" target = "lib\net48" />
+	</files>
+</package>

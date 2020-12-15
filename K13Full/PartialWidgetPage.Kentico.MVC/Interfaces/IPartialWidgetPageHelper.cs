@@ -35,19 +35,11 @@ namespace PartialWidgetPage
         void RestoreContext(PreservedPageBuilderContext PreviousContext);
 
         /// <summary>
-        /// Returns the given Layout if the the Edit Mode is true.
+        /// Returns the given Layout if the RenderAsPartialUrlParameter is provided.
         /// </summary>
         /// <param name="Layout">The given Layout to return if Edit Mode</param>
         /// <returns>The Layout if it's in Edit mode, null if not (so renders as a partial)</returns>
         string LayoutIfEditMode(string Layout);
-
-        /// <summary>
-        /// Returns the given Layout if this is called from a Partial Widget Page Ajax call.
-        /// </summary>
-        /// <param name="Layout">The given Layout to return if it's not called from a partial widget page Ajax call</param>
-        /// <returns>The Layout if it's not called from an Ajax call (so renders as a partial)</returns>
-        string LayoutIfNotAjax(string Layout);
-
 
         /// <summary>
         /// Gets the URL Parameter that is appended to AJAX requests to trigger a Null layout in LayoutIfEditMode

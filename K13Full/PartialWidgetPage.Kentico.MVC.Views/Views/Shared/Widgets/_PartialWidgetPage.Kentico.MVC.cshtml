@@ -1,0 +1,38 @@
+@using PartialWidgetPage
+@model ParitalWidgetPageWidgetActionViewModel
+
+@if (!Model.Render)
+{
+    if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <p style="color: red;">Error: @Model.Error</p>
+    }
+    else
+    {
+        <p>Configure widget to render partial page.</p>
+    }
+}
+else
+{
+    if (Model.RenderMode == PartialWidgetPageWidgetRenderMode.Ajax)
+    {
+        @Html.PartialWidgetPageAjax(@Model.AjaxUrl)
+    }
+    if (Model.RenderMode == PartialWidgetPageWidgetRenderMode.ServerSide)
+    {
+        if (Model.Renderer != null)
+        {
+            var PreviousContext = Html.GetCurrentContext();
+            if(Model.Renderer.SetContextPriorToCall)
+            {
+                Html.ChangeContext(Model.DocumentID);
+            }
+            Html.RenderAction(Model.Renderer.ActionName, Model.Renderer.ControllerName, Model.Renderer.RouteValues);
+            Html.RestoreContext(PreviousContext);
+        }
+        else
+        {
+            <p style="color: red">There was no Renderer defined in the IPartialWidgetRenderingRetreiver.GetRenderingControllerAction for this class.  Please have a developer return a ParitalWidgetRendering for this class prior to usage.</p>
+        }
+    }
+}

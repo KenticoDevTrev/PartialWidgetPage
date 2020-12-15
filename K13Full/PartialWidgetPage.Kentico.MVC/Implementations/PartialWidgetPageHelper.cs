@@ -5,9 +5,9 @@ using Kentico.Content.Web.Mvc;
 using Kentico.PageBuilder.Web.Mvc;
 using Kentico.PageBuilder.Web.Mvc.Internal;
 using Kentico.Web.Mvc;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq;
+using System.Web;
 
 namespace PartialWidgetPage
 {
@@ -15,21 +15,18 @@ namespace PartialWidgetPage
     {
         private IPageDataContextInitializer pageDataContextInitializer;
         private readonly IHttpContextRetriever httpContextRetriever;
-        private readonly IHttpContextAccessor httpContext;
         private readonly IPageRetriever pageRetriever;
         private readonly IPageDataContextRetriever pageDataContextRetriever;
         private readonly IPageBuilderDataContextRetriever pageBuilderDataContextRetriever;
 
         public PartialWidgetPageHelper(IPageDataContextInitializer pageDataContextInitializer,
             IHttpContextRetriever httpContextRetriever,
-            IHttpContextAccessor httpContext,
             IPageRetriever pageRetriever,
             IPageDataContextRetriever pageDataContextRetriever,
             IPageBuilderDataContextRetriever pageBuilderDataContextRetriever)
         {
             this.pageDataContextInitializer = pageDataContextInitializer;
             this.httpContextRetriever = httpContextRetriever;
-            this.httpContext = httpContext;
             this.pageRetriever = pageRetriever;
             this.pageDataContextRetriever = pageDataContextRetriever;
             this.pageBuilderDataContextRetriever = pageBuilderDataContextRetriever;
@@ -55,7 +52,7 @@ namespace PartialWidgetPage
         {
             httpContextRetriever.GetContext().Items["Kentico.PageBuilder.DataContext"] = new PageBuilderDataContext()
             {
-                Options = httpContext.HttpContext.Kentico().PageBuilder().Options,
+                Options = HttpContext.Current.Kentico().PageBuilder().Options,
                 EditMode = false
             };
             httpContextRetriever.GetContext().Items["Kentico.Content.PageDataContext"] = null;
@@ -65,7 +62,7 @@ namespace PartialWidgetPage
         {
             httpContextRetriever.GetContext().Items["Kentico.PageBuilder.DataContext"] = new PageBuilderDataContext()
             {
-                Options = httpContext.HttpContext.Kentico().PageBuilder().Options,
+                Options = HttpContext.Current.Kentico().PageBuilder().Options,
                 EditMode = false
             };
             pageDataContextInitializer.Initialize(DocumentID);
@@ -75,7 +72,7 @@ namespace PartialWidgetPage
         {
             httpContextRetriever.GetContext().Items["Kentico.PageBuilder.DataContext"] = new PageBuilderDataContext()
             {
-                Options = httpContext.HttpContext.Kentico().PageBuilder().Options,
+                Options = HttpContext.Current.Kentico().PageBuilder().Options,
                 EditMode = false
             };
             pageDataContextInitializer.Initialize(Document);
@@ -90,16 +87,7 @@ namespace PartialWidgetPage
 
         public string LayoutIfEditMode(string Layout)
         {
-            if (!httpContext.HttpContext.Kentico().PageBuilder().EditMode)
-            {
-                return null;
-            }
-            return Layout;
-        }
-
-        public string LayoutIfNotAjax(string Layout)
-        {
-            if (httpContext.HttpContext.Request.Query.ContainsKey(GetPartialUrlParameter()))
+            if (HttpContext.Current.Request.QueryString.AllKeys.Contains(GetPartialUrlParameter()) || !HttpContext.Current.Kentico().PageBuilder().EditMode)
             {
                 return null;
             }
