@@ -629,6 +629,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClonePageBuilderFeature.cs" />
     <Compile Include="Implementations\PartialWidgetPageHelper.cs" />
     <Compile Include="Interfaces\IPartialWidgetPageHelper.cs" />
     <Compile Include="Interfaces\IPartialWidgetRenderingRetriever.cs" />

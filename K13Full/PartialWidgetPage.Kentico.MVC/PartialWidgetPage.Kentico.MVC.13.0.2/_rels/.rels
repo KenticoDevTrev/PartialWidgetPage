@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Type="http://schemas.microsoft.com/packaging/2010/07/manifest" Target="/PartialWidgetPage.Kentico.MVC.nuspec" Id="Rea7e54e27e0544eb" />
+  <Relationship Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="/package/services/metadata/core-properties/fc97461f28a7406593362395c719780d.psmdcp" Id="R3d64850c5f3d49df" />
+</Relationships>

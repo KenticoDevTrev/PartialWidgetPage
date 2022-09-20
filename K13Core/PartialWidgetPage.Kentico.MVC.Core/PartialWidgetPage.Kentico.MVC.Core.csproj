@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>13.0.1</Version>
+    <Version>13.0.3</Version>
     <Authors>Trevor Fayas</Authors>
     <Company>Heartland Business Systems</Company>
     <Product>Partial Widget Page</Product>
@@ -14,7 +14,7 @@
     <RepositoryUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
     <PackageTags>Kentico, 13, Page Builder, Widgets</PackageTags>
-    <PackageReleaseNotes>Initial build for .net Core</PackageReleaseNotes>
+    <PackageReleaseNotes>Parital Widget Page failed when rendering on a page that had no previous Page Builder Context.  Adjusted to account.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

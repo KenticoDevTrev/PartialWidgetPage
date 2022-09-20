@@ -10,7 +10,7 @@
 		<iconUrl>https://raw.githubusercontent.com/Kentico/devnet.kentico.com/master/marketplace/assets/generic-integration.png</iconUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>$description$</description>
-		<releaseNotes/>
+		<releaseNotes>Parital Widget Page failed when rendering on a page that had no previous Page Builder Context.  Adjusted to account.</releaseNotes>
 		<copyright>Heartland Business Systems</copyright>
 		<tags>Kentico, Widgets, Partial</tags>
 		<dependencies>

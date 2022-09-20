@@ -1,5 +1,6 @@
 ﻿using CMS.DocumentEngine;
 using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Web.Mvc;
 
 namespace PartialWidgetPage
 {

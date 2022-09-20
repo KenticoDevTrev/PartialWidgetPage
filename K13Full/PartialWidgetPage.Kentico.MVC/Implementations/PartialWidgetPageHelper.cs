@@ -40,7 +40,11 @@ namespace PartialWidgetPage
         public PreservedPageBuilderContext GetCurrentContext()
         {
             IPageBuilderDataContext PageBuilderContext = pageBuilderDataContextRetriever.Retrieve();
-            TreeNode Page = pageDataContextRetriever.Retrieve<TreeNode>().Page;
+            TreeNode Page = null;
+            if(pageDataContextRetriever.TryRetrieve(out IPageDataContext<TreeNode> data))
+            {
+                Page = data.Page;
+            }
             return new PreservedPageBuilderContext()
             {
                 PageBuilderContext = PageBuilderContext,
@@ -83,6 +87,14 @@ namespace PartialWidgetPage
             // Restore 
             httpContextRetriever.GetContext().Items["Kentico.PageBuilder.DataContext"] = PreviousContext.PageBuilderContext;
             httpContextRetriever.GetContext().Items["Kentico.Content.PageDataContext"] = PreviousContext.Page;
+
+            // The PageBuilderFeature in the Featureset gets changed, thus killing EditMode, must add our own to have the previous context's edit mode.
+            ((IFeatureSet)httpContextRetriever.GetContext().Items["Kentico.Features"]).SetFeature<IPageBuilderFeature>(new ClonePageBuilderFeature(pageDataContextInitializer)
+            {
+                EditMode = PreviousContext.PageBuilderContext.EditMode,
+                Options = PreviousContext.PageBuilderContext.Options,
+                PageIdentifier = PreviousContext.Page != null ? PreviousContext.Page.DocumentID : 0
+            });
         }
 
         public string LayoutIfEditMode(string Layout)
