@@ -1,0 +1,6 @@
+﻿@model PartialWidgetPage.RenderPageViewModel
+@inject PartialWidgetPage.IPartialWidgetPageHelper partialWidgetPageHelper
+
+@{await Html.RenderPartialAsync(Model.ViewPath, Model.ComponentViewModel);}
+
+@{partialWidgetPageHelper.RestoreContext(Model.PreservedContext);}

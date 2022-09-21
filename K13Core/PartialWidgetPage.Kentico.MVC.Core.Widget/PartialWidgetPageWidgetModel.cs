@@ -9,12 +9,13 @@ namespace PartialWidgetPage
     {
         public const string IDENTITY = "PartialWidgetPage.PartialWidget";
         public const string _RenderMode_Server = "ServerRequest";
+        public const string _RenderMode_ServerPageBuilderLogic = "ServerSidePageBuilderLogic";
         public const string _RenderMode_Ajax = "Ajax";
         public const string _PageSelectionMode_Path = "ByPath";
         public const string _PageSelectionMode_ByNodeGuid = "ByNodeGuid";
 
-        [EditingComponent(DropDownComponent.IDENTIFIER, DefaultValue = "ServerRequest", Label = "Render Mode", Tooltip = "Server Render will render the content server side (requires IPartialWidgetRenderingRetreiver implementation for the selected class).\n\nAjax loads the content client-side [automatic routing, cache dependency separate]", ExplanationText = "Hover for more info", Order = 0)]
-        [EditingComponentProperty(nameof(DropDownProperties.DataSource), "ServerRequest;Server Render\r\nAjax;Ajax")]
+        [EditingComponent(DropDownComponent.IDENTIFIER, DefaultValue = "ServerSidePageBuilderLogic", Label = "Render Mode", Tooltip = "Server Render (Default Routing) will render the content server side using whatever Template or default configuration is on the Document.\n\nServer Render (Custom) will render the content server side, but requires IPartialWidgetRenderingRetreiver implementation for the selected class.\n\nAjax loads the content client-side [automatic routing, cache dependency separate]", ExplanationText = "Hover for more info", Order = 0)]
+        [EditingComponentProperty(nameof(DropDownProperties.DataSource), "ServerSidePageBuilderLogic;Server Render (Default)\r\nServerRequest;Server Render (Custom)\r\nAjax;Ajax")]
         public string RenderMode { get; set; }
 
         [EditingComponent(DropDownComponent.IDENTIFIER, DefaultValue = "ByPath", Label = "Page Selection", Tooltip = "How you would like to select the page", ExplanationText = "", Order = 1)]

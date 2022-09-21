@@ -73,6 +73,25 @@ namespace PartialWidgetPage
                         }
                     }
                 }
+                else if (Properties.RenderMode.Equals(PartialWidgetPageWidgetModel._RenderMode_ServerPageBuilderLogic))
+                {
+                    model.RenderMode = PartialWidgetPageWidgetRenderMode.ServerSidePageBuilderLogic;
+                    TreeNode Page = GetPage(Properties, false);
+                    if (Page == null)
+                    {
+                        model.Render = false;
+                        model.Error = "Could not locate Page, please check configuration";
+                        EventLogWriter.WriteLog(new EventLogData(EventTypeEnum.Warning, "PartialWidgetPageWidget", "PAGENOTFOUND")
+                        {
+                            EventDescription = "Could not find Page from the configuration of the Parital Widget Page Widget, located on page: " + widgetProperties.Page.NodeAliasPath
+                        });
+                    }
+                    else
+                    {
+                        // Only need DocumentID
+                        model.DocumentID = Page.DocumentID;
+                    }
+                }
                 else if (Properties.RenderMode.Equals(PartialWidgetPageWidgetModel._RenderMode_Server))
                 {
                     model.RenderMode = PartialWidgetPageWidgetRenderMode.ServerSide;
@@ -91,6 +110,10 @@ namespace PartialWidgetPage
                         // get DocumentID and RenderClass
                         model.Renderer = PartialWidgetRenderingRetriever.GetRenderingViewComponent(Page.ClassName);
                         model.DocumentID = Page.DocumentID;
+                        if(model.Renderer == null)
+                        {
+                            model.Render = false;
+                        }
                     }
                 } else
                 {

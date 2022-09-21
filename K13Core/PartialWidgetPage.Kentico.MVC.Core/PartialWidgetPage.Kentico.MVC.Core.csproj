@@ -1,9 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>13.0.3</Version>
+	  <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>13.1.0</Version>
     <Authors>Trevor Fayas</Authors>
     <Company>Heartland Business Systems</Company>
     <Product>Partial Widget Page</Product>
@@ -14,7 +15,7 @@
     <RepositoryUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
     <PackageTags>Kentico, 13, Page Builder, Widgets</PackageTags>
-    <PackageReleaseNotes>Parital Widget Page failed when rendering on a page that had no previous Page Builder Context.  Adjusted to account.</PackageReleaseNotes>
+    <PackageReleaseNotes>Adding &lt;vc:render-page document-id="" /&gt; and &lt;vc:render-page-optimized typed-page=@MyTypedTreeNode /&gt; View Component that resolves the inline page using normal kentico routing, including Page Template support.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
