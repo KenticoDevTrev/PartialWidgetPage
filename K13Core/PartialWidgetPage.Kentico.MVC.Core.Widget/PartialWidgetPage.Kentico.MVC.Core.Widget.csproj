@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>13.0.1</Version>
+    <Version>13.1.0</Version>
     <Authors>Trevor Fayas</Authors>
     <Company>Heartland Business Systems</Company>
     <Product>Partial Widget Page Widget</Product>
@@ -15,7 +15,7 @@
     <PackageIcon>hbs-favicon-96x96.png</PackageIcon>
     <RepositoryType></RepositoryType>
     <PackageTags>Kentico, Page Builder, Partial, Widgets</PackageTags>
-    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated package reference and added capability to render using normal kentico settings.</PackageReleaseNotes>
     <AssemblyVersion>13.0.1.0</AssemblyVersion>
     <FileVersion>13.0.1.0</FileVersion>
   </PropertyGroup>
@@ -27,7 +27,7 @@
   <ItemGroup>
     <PackageReference Include="Kentico.Xperience.AspNetCore.WebApp" Version="13.0.0" />
     <PackageReference Include="Kentico.Xperience.Libraries" Version="13.0.0" />
-    <PackageReference Include="PartialWidgetPage.Kentico.MVC.Core" Version="13.0.1" />
+    <PackageReference Include="PartialWidgetPage.Kentico.MVC.Core" Version="13.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,10 +35,6 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\PartialWidgetPage.Kentico.MVC.Core\PartialWidgetPage.Kentico.MVC.Core.csproj" />
   </ItemGroup>
 
 
