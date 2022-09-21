@@ -1,34 +1,16 @@
-
-## Installation [.Net Core]
-1. Install the [`PartialWidgetPage.Kentico.MVC.Core`](https://www.nuget.org/packages/PartialWidgetPage.Kentico.MVC.Core/) Nuget Package on your .net Core site.
-2. In your Startup, add the implementation of the IPartialWidgetPageHelper: `services.AddSingleton(typeof(IPartialWidgetPageHelper), typeof(PartialWidgetPageHelper));`
+## Installation KX13 [.Net Core]
+1. Install the [PartialWidgetPage.Kentico.MVC.Core](https://www.nuget.org/packages/PartialWidgetPage.Kentico.MVC.Core/) Nuget Package on your .net Core site.
+2. In your Startup, add `services.AddPartialWidgetPage();`
 3. Add this TagHelper to your View or _ViewImport.cshtml: `@addTagHelper *, PartialWidgetPage.Kentico.MVC.Core`
 4. You may also want to add a Using for the PartialWidgetPage namespace: `@using PartialWidgetPage`
 
 To install the Partial Widget Page Widget as well...
-1. Install the [`PartialWidgetPage.Kentico.MVC.Core.Widget] Nuget Package on your .net Core Site.
-2. Implement your own IPartialWidgetRenderingRetriever (see examples below) and add it to your Startup file: `services.AddSingleton(typeof(IPartialWidgetRenderingRetriever), typeof(CustomPartialWidgetRenderingRetriever));`	
-3.   Allow the widget with code name `PartialWidgetPage.PartialWidget` into any zones with a specified widget list.
+1. Install the [`PartialWidgetPage.Kentico.MVC.Core.Widget] Nuget Package on your .net Core Site.`
+2.   Allow the widget with code name `PartialWidgetPage.PartialWidget` into any zones with a specified widget list.
+3. Optionally, if you wish to use Server Side rendering with custom view component logic, implement your own  `IPartialWidgetRenderingRetriever`  (see examples below) and add it to your Startup file: `services.AddSingleton(typeof(IPartialWidgetRenderingRetriever), typeof(CustomPartialWidgetRenderingRetriever));`	
 
 ## Installation [.Net Full Framework]
-1. Install the [`PartialWidgetPage.Kentico.MVC`] Nuget Package on your .net 4.8 MVC Site.
-2. Register your dependency injections for the `IPartialWidgetPageHelper` and `IPartialWidgetRenderingRetriever` (you'll have to supply your own implementation of  `IPartialWidgetRenderingRetriever`), make sure that these are registered for both the main project assembly **and** the Partial Widget Assembly.  Here's what was in my `ApplicationConfig.RegisterFeatures`:
-``` csharp
-            // Register AutoFac Items
-            var autofacBuilder = new ContainerBuilder();
-
-            autofacBuilder.RegisterType<PartialWidgetPageHelper>().As<IPartialWidgetPageHelper>();
-            autofacBuilder.RegisterType<CustomPartialWidgetRenderingRetriever>().As<IPartialWidgetRenderingRetriever>();
-
-            // Register Dependencies for Cache, pass in any assemblies you wish to hook up
-            DependencyResolverConfig.Register(autofacBuilder, new Assembly[] { typeof(ApplicationConfig).Assembly, typeof(PartialWidgetPageHelper).Assembly });
-
-            // Set Autofac Dependency resolver to the builder
-            DependencyResolver.SetResolver(new AutofacDependencyResolver(autofacBuilder.Build()));
-
-```
-3. Consider adding `<add namespace="PartialWidgetPage"/>` to the web.config in your Views to get the Html helper extensions
-4.   Allow the widget with code name `PartialWidgetPage.PartialWidget` into any zones with a specified widget list.
+Please see [Full Framework KX12/KX13](https://github.com/KenticoDevTrev/PartialWidgetPage/tree/KX12KX13FullFramework) Branch.
 
 ## WARNING: INFINITE LOOPS
 When using this tool, be very careful not to render a widget page that render itself or the parent, thus causing an infinite loop of rendering.  If you editing a page that will be used in the Header and Footer, for example, please make a different Layout view that does not render the Header or Footer on it.
@@ -41,6 +23,15 @@ To leverage, add this TagHelper to your View or _ViewImport.cshtml
 
 You may also want to add a Using for the PartialWidgetPage namespace
 `@using PartialWidgetPage`
+
+**Render-Page View Components**
+There are two render-page view components that switch the page context and call whatever default routing exists for the page (Basic Routing or Page Templates).
+
+You can call the below to render the page via DocumentID (will handle context switching and retrieving the typed page)
+`<vc:render-page document-id=@documentID />`
+
+Or you can use the below which does the same thing, but avoids any additional queries to retrieve the page data.  Your passed `TreeNode` page should be typed (retrieved with the proper class) and contain all columns, including those in the class. 
+`<vc:render-page-optimized typed-page=@myTypedTreeNode />`
 
 **PartialWidgetPageTagHelper [inlinewidgetpage]**
 This tag helper helps preserve and switch the Page Builder Context, and contains 3 parameters:
@@ -87,7 +78,7 @@ namespace Generic
 }
 ```
 
-** PartialWidgetPageAjaxTagHelper [ajaxwidgetpage]**
+**PartialWidgetPageAjaxTagHelper [ajaxwidgetpage]**
 This tag helper wires up the Client Side Ajax request to pull in page content.  It contains 4 parameters:
 **relative-url**: The url that will be called to pull in the request.  Can be any valid route, including custom ones, or just the relative url to the Page.  *If provided, you do **not** need page or documentid*
 **page**: The `TreeNode` that you wish to render, this will be used to retrieve it's relative url.
@@ -99,54 +90,6 @@ This tag helper wires up the Client Side Ajax request to pull in page content.  
         <ajaxwidgetpage page=@Model.MyTreeNode />
 ```
 
-## [.Net 4.8] Html Helpers
-For the .Net Full Framework, the IPartialWidgetPageHelper methods have been exposed in an HtmlHelper extension.  If you are `@using PartialWidgetPage` then you should see new `@Html` methods.
-
-**LayoutIfEditMode**: Used on the Layout assignment, will return a NULL layout (rendering as partial) if not EditMode or if it's being called as an Ajax call using the Partial Widget Page's Ajax methods
-
-**GetCurrentContext**: Retrieves the current Page Builder / Page Context, use this before calling another widget page inline so you can restore the context after.
-**ChangeContext**: Change the Page Builder context to not be Edit Mode, and if a `TreeNode` or `DocumentID` is passed, it also changes the Page Builder Context to the given page.
-**RestoreContext**: Pass the `PreservedPageBuilderContext` model you got from `GetCurrentContext` to this function to restore the Page Builder.  You call this after you have finished rendering a nested widget page.
-
-Here's a sample of rendering a nested Tab Page
-``` csharp
-var Context = Html.GetCurrentContext();
- Html.ChangeContext(Element.DocumentID);
- <div class="tab-pane fade @(T == 0 ? "show active" : "")" id="Tab-@Element.DocumentID" role="tabpanel" aria-labelledby="Tab-@Element.DocumentID">
-     @{Html.RenderAction("TabPartial", new { });}
- </div>
- Html.RestoreContext(Context);
-```
-This would map to this Partial:
-``` csharp
- public class TestController : Controller
-    {
-public ActionResult TabPartial()
-        {
-            TabFields model = new TabFields(DataRetriever.Retrieve<Tab>().Page);
-            return View(model);
-        }
-}
-```
-and this View:
-``` csharp
-@model CMS.DocumentEngine.Types.Generic.Tab.TabFields
-<div class="FromViewComponent">
-    <h2>@Model.Name</h2>
-    <p>Content below</p>
-    @Html.Kentico().EditableArea("tabContent")
-    <editable-area area-identifier="tabContent" />
-    <p>Content above</p>
-</div>
-```
-
-**GetDocumentIDByNode/GetDocumentIDByDocument**: Helper functions to retrieve the DocumentID given the Path, Node Guid, NodeID, or Document Guid.
-
-**PartialWidgetPageAjax**: Generates the Div/Javascript to render the given request/page client side.
-``` csharp
-@Html.PartialWidgetPageAjax(@Model.AjaxUrl)
-@Html.PartialWidgetPageAjax(@Model.DocumentID
-```
 
 ---
 ## Partial Widget Page - Widget
@@ -172,31 +115,20 @@ In your rendering View, if you wish to toggle the Layout off during either serve
 Be aware you may have to add a custom View or logic if you need to do Server Rendering with a partial, but also want it to render with a normal layout on non-edit mode.  However usually this is can be accomplished through your ViewComponent/Action Controller logic, or through a separate view.
 
 ---
-## Setup Partial-Viewable Content
-If you wish to use the same View for editing, but then render it as a partial view when pulled in as a partial, you can use `Html.LayoutIfEditMode` (.Net 4.8) or `IPartialWidgetPageHelper.LayoutIfEditMode` (.Net Core)
-
-``` csharp
-Layout = Html.LayoutIfEditMode("~/Views/Shared/_layout.cshtml");
-```
-``` csharp
-@inject IPartialWidgetPage PWPHelper
-Layout = PWPHelper.LayoutIfEditMode("~/Views/Shared/_layout.cshtml");
-```
-
-If you instead are using Ajax to pull in a partial page, you can use the `Html.LayoutIfNotAjax` (.Net 4.8) or `IPartialWidgetPageHelper.LayoutIfNotAjax` (.Net Core)
-
-``` csharp
-Layout = Html.LayoutIfNotAjax("~/Views/Shared/_layout.cshtml");
-```
+## Setup Partial-Viewable Content for AJAX
+Server side rendering will automatically use the prescribed Layout if you are accessing (editing) your page directly.  However, if you are using AJAX to pull in the page content, then you will need to instruct the View to not have a layout if it's an AJAX request to it. To do this, use  `IPartialWidgetPageHelper.LayoutIfNotAjax`
 ``` csharp
 @inject IPartialWidgetPage PWPHelper
 Layout = PWPHelper.LayoutIfNotAjax("~/Views/Shared/_layout.cshtml");
 ```
 
 ### IPartialWidgetRenderingRetriever
-In order for the Partial Widget Page Widget to render a given page, it must know *how* to render it.  If you wish to leverage this, you need to implement your own IPartialWidgetRenderingRetriever and hook it up with your dependency injection system.
+In order for the Partial Widget Page Widget to render a given page, it must know *how* to render it.
 
-#### .Net Core Example
+As of `13.1.0`, the Partial Widget Page is able to parse the given page's TemplateConfiguration (or lack there of) and determine the proper view to render (along with compiling the `ComponentViewModel` / `ComponentViewModel<TemplatePropertyType>` and passing it to the view).  
+
+However, if you wish to put in custom logic and render out a specific View-Component, or you use Custom Routing, you can implement your own `IPartialWidgetRenderingRetriever` to determine which View-Component to render and what data should be passed to it.
+
 Here is my implementation where I'm registering my Tab's to be usable as an Partial Widget Page, as well as my ShareableContent class.   Now the widget will know what View Component and what data it needs, and that it should switch the Page Builder Context prior to calling these (as these View Components do not call the `pageDataContextInitializer.Initialize` method within them.
 ``` csharp
 using CMS.DocumentEngine.Types.Generic;
@@ -233,48 +165,14 @@ namespace BlankSite.MyRepositories
 }
 ```
 
-#### .Net 4.8 Example
-Here is my implementation for the `IPartialWidgetRenderingRetriever`
-``` csharp
-namespace BlankSite.MyRepositories
-{
-    public class CustomPartialWidgetRenderingRetriever : IPartialWidgetRenderingRetriever
-    {
-        public ParitalWidgetRendering GetRenderingControllerAction(string ClassName, int DocumentID = 0)
-        {
-            if (ClassName.Equals(Tab.CLASS_NAME))
-            {
-                return new ParitalWidgetRendering()
-                {
-                    RouteValues = new { },
-                    ActionName = "TabPartial",
-                    ControllerName="Test",
-                    SetContextPriorToCall = true
-                };
-            }
-            if (ClassName.Equals(ShareableContent.CLASS_NAME))
-            {
-                return new ParitalWidgetRendering()
-                {
-                    RouteValues = new { Testing = "Hello" },
-                    ActionName = "Partial",
-                    ControllerName = "ShareableContent",
-                    SetContextPriorToCall = true
-                };
-            }
-
-            return null;
-        }
-    }
-}
-```
-
 # Contributions, bug fixes and License
 Feel free to Fork and submit pull requests to contribute.
 
-You can submit bugs through the issue list and i will get to them as soon as i can, unless you want to fix it yourself and submit a pull request!
+You can submit bugs through the issue list and I will get to them as soon as i can, unless you want to fix it yourself and submit a pull request!
 
 This is free to use and modify!
 
+Thanks to Jason Ebben for help on 13.1.0
+
 # Compatability
-Can be used on any Kentico 13 MVC site, either .Net 4.8 or .Net Core
+13.1.0 Can be used on any Kentico 13 MVC site .Net Core.  Version 13.0.0 is compatible with KX13 MVC5 (.net 4.8) or KX13 MVC (.net Core).  See [Full Framework KX12/KX13](https://github.com/KenticoDevTrev/PartialWidgetPage/tree/KX12KX13FullFramework)
