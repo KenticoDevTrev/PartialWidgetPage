@@ -1,0 +1,39 @@
+﻿@using PartialWidgetPage
+@model PartialWidgetPage.PartialWidgetPageViewComponentModel
+@addTagHelper *, PartialWidgetPage.Xperience.Mvc.Core
+
+@if (!Model.Render)
+{
+    if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <p style="color: red;">Error: @Model.Error</p>
+    }
+    else
+    {
+        <p>Configure widget to render partial page.</p>
+    }
+}
+else
+{
+    if (Model.RenderMode == PartialWidgetPageWidgetRenderMode.Ajax)
+    {
+        <ajaxwidgetpage relative-url=@Model.AjaxUrl/>
+    }
+    if (Model.RenderMode == PartialWidgetPageWidgetRenderMode.ServerSide)
+    {
+        if (Model.Renderer != null)
+        {
+            <inlinewidgetpage initialize-document-prior=@Model.Renderer.SetContextPriorToCall web-page-id=@Model.WebPageId>
+                @await Component.InvokeAsync(Model.Renderer.ViewComponentName, Model.Renderer.ViewComponentData)
+            </inlinewidgetpage>
+        }
+        else
+        {
+            <p style="color: red">There was no Renderer defined in the IPartialWidgetRenderingRetreiver.GetRenderingViewComponent for this class. Please have a developer return a ParitalWidgetRendering for this class prior to usage or set the mode to ServerSide.</p>
+        }
+    }
+    if (Model.RenderMode == PartialWidgetPageWidgetRenderMode.ServerSidePageBuilderLogic)
+    {
+        <render-page web-page-id="@Model.WebPageId"/>
+    }
+}
