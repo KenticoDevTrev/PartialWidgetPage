@@ -6,25 +6,22 @@ public class PartialWidgetPageHelper : IPartialWidgetPageHelper
     private readonly IWebPageDataContextInitializer mDataContextInitializer;
     private readonly IHttpContextAccessor mHttpContextAccessor;
     private readonly IPageBuilderDataContextRetriever mPageBuilderDataContextRetriever;
-    private readonly IPreferredLanguageRetriever mPreferredLanguageRetriever;
     private readonly IWebPageDataContextRetriever mWebPageDataContextRetriever;
 
     private readonly IInfoProvider<WebPageItemInfo> mMWebPageItemInfoProvider;
 
     public PartialWidgetPageHelper(
         IPageBuilderDataContextRetriever pageBuilderDataContextRetriever,
-        IWebPageDataContextRetriever webP,
+        IWebPageDataContextRetriever webPageDataContextRetriever,
         IHttpContextRetriever httpContextRetriever,
         IInfoProvider<WebPageItemInfo> webPageItemInfoProvider,
-        IPreferredLanguageRetriever preferredLanguageRetriever,
         IHttpContextAccessor httpContextAccessor, 
         IWebPageDataContextInitializer dataContextInitializer)
     {
         mPageBuilderDataContextRetriever = pageBuilderDataContextRetriever;
-        mWebPageDataContextRetriever = webP;
+        mWebPageDataContextRetriever = webPageDataContextRetriever;
         mContextRetriever = httpContextRetriever;
         mMWebPageItemInfoProvider = webPageItemInfoProvider;
-        mPreferredLanguageRetriever = preferredLanguageRetriever;
         mHttpContextAccessor = httpContextAccessor;
         mDataContextInitializer = dataContextInitializer;
     }
@@ -50,10 +47,9 @@ public class PartialWidgetPageHelper : IPartialWidgetPageHelper
         ChangeContextInternal();
     }
 
-    public void ChangeContext(int id)
+    public void ChangeContext(int id, string language)
     {
         var wbi = mMWebPageItemInfoProvider.Get(id);
-        var language = mPreferredLanguageRetriever.Get();
 
         var routedPage = new PartialWidgetPageDataContextWebPage(wbi.WebPageItemID, language);
 

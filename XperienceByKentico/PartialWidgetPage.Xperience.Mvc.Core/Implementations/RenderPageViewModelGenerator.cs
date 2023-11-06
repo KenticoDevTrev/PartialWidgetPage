@@ -31,7 +31,7 @@ internal class RenderPageViewModelGenerator : IRenderPageViewModelGenerator
     }
 
     public async Task<RenderPageViewModel> GeneratePageViewModel(int pageId,
-        PreservedPageBuilderContext preservedPageBuilderContext)
+        PreservedPageBuilderContext preservedPageBuilderContext, CancellationToken token = default)
     {
         var webPageContext = mWebPageDataContextRetriever.Retrieve();
         var pageBuilderContext = mPageBuilderDataContextRetriever.Retrieve();
@@ -39,7 +39,7 @@ internal class RenderPageViewModelGenerator : IRenderPageViewModelGenerator
 
         var model = new RenderPageViewModel
         {
-            ViewPath = await GetViewPath(pageId),
+            ViewPath = await GetViewPath(pageId, token),
             ComponentViewModel = ComponentViewModel.Create(webPageContext.WebPage)
         };
 
@@ -80,8 +80,8 @@ internal class RenderPageViewModelGenerator : IRenderPageViewModelGenerator
         return model;
     }
 
-    private async Task<string> GetViewPath(int pageId)
+    private async Task<string> GetViewPath(int pageId, CancellationToken token = default)
     {
-        return string.Format(VIEW_DEFAULT_PATH, (await mWebPageItemInfoProvider.RetrieveClassName(pageId)).Replace('.', '_'));
+        return string.Format(VIEW_DEFAULT_PATH, (await mWebPageItemInfoProvider.RetrieveClassName(pageId, token: token)).Replace('.', '_'));
     }
 }

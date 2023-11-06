@@ -4,7 +4,7 @@ namespace PartialWidgetPage
 {
     internal static class WebPageItemInfoProviderExtensions
     {
-        public static async Task<string> RetrieveClassName(this IInfoProvider<WebPageItemInfo> provider, int pageId)
+        public static async Task<string> RetrieveClassName(this IInfoProvider<WebPageItemInfo> provider, int pageId, CancellationToken token = default)
         {
             return await CacheHelper.CacheAsync(async cs =>
             {
@@ -16,7 +16,7 @@ namespace PartialWidgetPage
                             nameof(DataClassInfo.ClassID));
                     }).WhereEquals(nameof(WebPageItemInfo.WebPageItemID), pageId)
                     .Column(nameof(DataClassInfo.ClassName))
-                    .GetScalarResultAsync("");
+                    .GetScalarResultAsync("", token);
             }, new CacheSettings(CacheHelper.CacheMinutes(), $"PartialWidgetPageWidget_GetPageClassName|{pageId}")
             {
                 CacheDependency = CacheHelper.GetCacheDependency(

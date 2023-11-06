@@ -18,7 +18,8 @@ public interface IPartialWidgetPageHelper
     ///     Changes the context to the given identifier, this also sets Edit Mode to false during this rendering.
     /// </summary>
     /// <param name="identifier">The identifier of the page</param>
-    void ChangeContext(int identifier);
+    /// <param name="language">Then language identifier of the page</param>
+    void ChangeContext(int identifier, string language);
 
     /// <summary>
     ///     Restores the Page Builder Context to the given previous context

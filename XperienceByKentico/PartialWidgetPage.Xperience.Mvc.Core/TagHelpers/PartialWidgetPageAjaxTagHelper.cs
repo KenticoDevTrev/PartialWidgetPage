@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿#nullable enable
+using CMS.Websites.Routing;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace PartialWidgetPage;
@@ -6,14 +8,17 @@ namespace PartialWidgetPage;
 [HtmlTargetElement("ajaxwidgetpage", TagStructure = TagStructure.NormalOrSelfClosing)]
 public class PartialWidgetPageAjaxTagHelper : TagHelper
 {
-    private readonly IContentLanguageRetriever mMContentLanguageRetriever;
+    private readonly IPreferredLanguageRetriever mPreferredLanguageRetriever;
     private readonly IWebPageUrlRetriever mMPageUrlRetriever;
+    private readonly IWebsiteChannelContext mWebsiteChannelContext;
 
     public PartialWidgetPageAjaxTagHelper(IWebPageUrlRetriever pageUrlRetriever,
-        IContentLanguageRetriever contentLanguageRetriever)
+        IPreferredLanguageRetriever contentLanguageRetriever,
+        IWebsiteChannelContext websiteChannelContext)
     {
         mMPageUrlRetriever = pageUrlRetriever;
-        mMContentLanguageRetriever = contentLanguageRetriever;
+        mPreferredLanguageRetriever = contentLanguageRetriever;
+        mWebsiteChannelContext = websiteChannelContext;
     }
 
     [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
@@ -25,6 +30,12 @@ public class PartialWidgetPageAjaxTagHelper : TagHelper
     public string RelativeUrl { get; set; }
 
     /// <summary>
+    ///     The language of the Web Page you wish to retrieve
+    ///     If language is not passed it will default to <see cref="IPreferredLanguageRetriever.Get()"/>
+    /// </summary>
+    public string? Language { get; set; }
+
+    /// <summary>
     ///     The Document ID you wish to get the Relative url from.
     /// </summary>
     public int WebPageId { get; set; }
@@ -32,12 +43,19 @@ public class PartialWidgetPageAjaxTagHelper : TagHelper
     protected string AjaxUrl { get; set; }
     private bool Render { get; set; }
 
+    public override void Init(TagHelperContext context)
+    {
+        if (string.IsNullOrWhiteSpace(Language))
+            Language = mPreferredLanguageRetriever.Get();
+
+        base.Init(context);
+    }
+
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         if (WebPageId > 0)
         {
-            var language = await mMContentLanguageRetriever.GetDefaultContentLanguageOrThrow();
-            var webPageUrl = await mMPageUrlRetriever.Retrieve(WebPageId, language.ContentLanguageName);
+            var webPageUrl = await mMPageUrlRetriever.Retrieve(WebPageId, Language, mWebsiteChannelContext.IsPreview, ViewContext.HttpContext.RequestAborted);
 
             if (webPageUrl != null)
                 AjaxUrl = webPageUrl.RelativePath;

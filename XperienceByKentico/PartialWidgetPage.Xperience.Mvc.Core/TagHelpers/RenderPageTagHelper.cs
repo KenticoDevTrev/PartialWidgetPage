@@ -1,33 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using CMS.Core;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace PartialWidgetPage;
 
-public class RenderPageTagHelper : TagHelper
+public class RenderPageTagHelper : PartialWidgetPageTagHelperBase
 {
+    private readonly IEventLogService mEventLogService;
     private readonly IHtmlHelper mHtmlHelper;
-    private readonly IHttpContextRetriever mHttpContextRetriever;
     private readonly IRenderPageViewModelGenerator mPageViewModelGenerator;
 
     private readonly IPartialWidgetPageHelper mPartialWidgetPageHelper;
 
-
     public RenderPageTagHelper(IPartialWidgetPageHelper partialWidgetPageHelper,
-        IHttpContextRetriever httpContextRetriever,
-        IRenderPageViewModelGenerator pageViewModelGenerator, IHtmlHelper htmlHelper)
+        IEventLogService eventLogService,
+        IRenderPageViewModelGenerator pageViewModelGenerator,
+        IHtmlHelper htmlHelper) : base(partialWidgetPageHelper)
     {
         mPartialWidgetPageHelper = partialWidgetPageHelper;
         mPageViewModelGenerator = pageViewModelGenerator;
         mHtmlHelper = htmlHelper;
-        mHttpContextRetriever = httpContextRetriever;
-    }
-
-
-    public override void Init(TagHelperContext context)
-    {
-        base.Init(context);
-
-        PreservedPageBuilderContext = mPartialWidgetPageHelper.GetCurrentContext();
+        mEventLogService = eventLogService;
     }
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
@@ -44,36 +37,27 @@ public class RenderPageTagHelper : TagHelper
 
         try
         {
-            mPartialWidgetPageHelper.ChangeContext(WebPageId);
+            mPartialWidgetPageHelper.ChangeContext(WebPageId, Language);
 
-
-            var model = await mPageViewModelGenerator.GeneratePageViewModel(WebPageId, PreservedPageBuilderContext);
+            var model = await mPageViewModelGenerator.GeneratePageViewModel(WebPageId, PreservedContext,
+                ViewContext.HttpContext.RequestAborted);
 
             if (model.ViewExists)
                 output.Content.SetHtmlContent(await mHtmlHelper.PartialAsync(model.ViewPath,
                     model.ComponentViewModel));
             else
-                output.Content.SetHtmlContent(@"
+                output.Content.SetHtmlContent(@$"
                             <p style=""color: red"">
-                                There was no view defined at the path @Model.ViewPath
+                                There was no view defined at the path {model.ViewPath}
                             </p>"
                 );
         }
         catch (Exception ex)
         {
+            mEventLogService.LogException("PartialWidgetPage", "RENDER", ex);
             output.SuppressOutput();
         }
 
-        mPartialWidgetPageHelper.RestoreContext(PreservedPageBuilderContext);
+        mPartialWidgetPageHelper.RestoreContext(PreservedContext);
     }
-
-    #region Properties
-
-    public int WebPageId { get; set; }
-
-    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
-
-    protected PreservedPageBuilderContext PreservedPageBuilderContext { get; set; }
-
-    #endregion
 }

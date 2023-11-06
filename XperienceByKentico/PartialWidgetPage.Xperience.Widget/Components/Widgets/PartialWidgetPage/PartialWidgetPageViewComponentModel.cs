@@ -8,4 +8,5 @@ public class PartialWidgetPageViewComponentModel
     public int WebPageId { get; set; }
     public ParitalWidgetRendering Renderer { get; set; }
     public string Error { get; set; }
+    public string Language { get; set; }
 }

@@ -1,4 +1,6 @@
-﻿namespace PartialWidgetPage;
+﻿using CMS.ContentEngine;
+
+namespace PartialWidgetPage;
 
 public class PartialWidgetPageWidgetModel : IWidgetProperties
 {
@@ -25,4 +27,13 @@ public class PartialWidgetPageWidgetModel : IWidgetProperties
         ExplanationText = "Overwrites the path if provided")]
     [VisibilityCondition(nameof(RenderMode), ComparisonTypeEnum.IsEqualTo, "Ajax")]
     public string? CustomUrl { get; set; }
+
+    [EditingComponent(CheckBoxComponent.IDENTIFIER, Label = "Use preferred language?", Order = 90)]
+    public bool UsePreferredLanguage { get; set; }
+
+    [EditingComponent(ObjectSelector.IDENTIFIER, Label = "Language to use?", Order = 91)]
+    [EditingComponentProperty(nameof(ObjectSelectorProperties.ObjectType), ContentLanguageInfo.OBJECT_TYPE)]
+    [EditingComponentProperty(nameof(ObjectSelectorProperties.MaxItemsLimit), 1)]
+    [VisibilityCondition(nameof(UsePreferredLanguage), ComparisonTypeEnum.IsFalse)]
+    public IEnumerable<ObjectSelectorItem> Language { get; set; } = Enumerable.Empty<ObjectSelectorItem>();
 }

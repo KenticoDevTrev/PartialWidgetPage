@@ -1,8 +1,8 @@
-﻿using CMS.ContentEngine.Internal;
-using CMS.DataEngine;
+﻿using CMS.DataEngine;
 using CMS.Helpers;
 using CMS.Websites;
 using CMS.Websites.Internal;
+using CMS.Websites.Routing;
 using Kentico.Content.Web.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc;
 using PartialWidgetPage;
@@ -19,23 +19,25 @@ namespace PartialWidgetPage;
 
 public class PartialWidgetPageWidgetViewComponent : ViewComponent
 {
-    private readonly IPreferredLanguageRetriever mContentLanguageRetriever;
     private readonly IPartialWidgetRenderingRetriever mPartialWidgetRenderingRetriever;
-
+    private readonly IPreferredLanguageRetriever mPreferredLanguageRetriever;
+    private readonly IWebsiteChannelContext mWebsiteChannelContext;
     private readonly IWebPageUrlRetriever mUrlRetriever;
 
     private readonly IInfoProvider<WebPageItemInfo> mWebPageInfoProvider;
 
     public PartialWidgetPageWidgetViewComponent(
-        IPreferredLanguageRetriever contentLanguageRetriever,
         IPartialWidgetRenderingRetriever partialWidgetRenderingRetriever,
         IInfoProvider<WebPageItemInfo> webPageInfoProvider,
-        IWebPageUrlRetriever urlRetriever)
+        IWebPageUrlRetriever urlRetriever,
+        IPreferredLanguageRetriever preferredLanguageRetriever, 
+        IWebsiteChannelContext websiteChannelContext)
     {
-        mContentLanguageRetriever = contentLanguageRetriever;
         mPartialWidgetRenderingRetriever = partialWidgetRenderingRetriever;
         mWebPageInfoProvider = webPageInfoProvider;
         mUrlRetriever = urlRetriever;
+        mPreferredLanguageRetriever = preferredLanguageRetriever;
+        mWebsiteChannelContext = websiteChannelContext;
     }
 
     public async Task<IViewComponentResult> InvokeAsync(
@@ -46,9 +48,18 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
 
         var properties = widgetProperties.Properties;
 
-        var model = new PartialWidgetPageViewComponentModel();
+        //Set language resolved as preferred language
+        var model = new PartialWidgetPageViewComponentModel()
+        {
+            Language = mPreferredLanguageRetriever.Get()
+        };
 
-        var page = await GetPage(properties);
+        //if language is selected from properties override the preferred language
+        if (!properties.UsePreferredLanguage && properties.Language.Any())
+            model.Language = properties.Language.First().ObjectCodeName;
+
+
+        var page = await GetPage(properties, ViewContext.HttpContext.RequestAborted);
 
         if (page == null)
         {
@@ -70,8 +81,9 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
                         }
                         else
                         {
-                            var language = mContentLanguageRetriever.Get();
-                            var url = await mUrlRetriever.Retrieve(page.WebPageItemGUID, language);
+                            var url = await mUrlRetriever.Retrieve(page.WebPageItemGUID, model.Language,
+                                mWebsiteChannelContext.IsPreview, ViewContext.HttpContext.RequestAborted);
+
                             model.AjaxUrl = url.RelativePath;
                         }
 
@@ -83,7 +95,7 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
                         break;
                     case PartialWidgetPageWidgetRenderMode.ServerSide:
 
-                        var className = await mWebPageInfoProvider.RetrieveClassName(page.WebPageItemID);
+                        var className = await mWebPageInfoProvider.RetrieveClassName(page.WebPageItemID, ViewContext.HttpContext.RequestAborted);
                         model.Renderer = mPartialWidgetRenderingRetriever.GetRenderingViewComponent(className, page.WebPageItemID);
                         model.WebPageId = page.WebPageItemID;
 
@@ -104,14 +116,14 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
         return View("~/Components/Widgets/PartialWidgetPage/Default.cshtml", model);
     }
 
-    private async Task<WebPageItemInfo> GetPage(PartialWidgetPageWidgetModel widgetModel)
+    private async Task<WebPageItemInfo> GetPage(PartialWidgetPageWidgetModel widgetModel, CancellationToken token = default)
     {
         if (widgetModel.Page.Any())
         {
             var webPageGuid = widgetModel.Page.First().WebPageGuid;
 
             return await CacheHelper.CacheAsync(
-                async cs => await mWebPageInfoProvider.GetAsync(webPageGuid),
+                async cs => await mWebPageInfoProvider.GetAsync(webPageGuid, token),
                 new CacheSettings(CacheHelper.CacheMinutes(), $"PartialWidgetPageWidget_GetPage|{webPageGuid}")
                 {
                     CacheDependency = CacheHelper.GetCacheDependency($"webpageitem|byguid|{webPageGuid}")

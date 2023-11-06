@@ -1,11 +1,10 @@
 ﻿namespace PartialWidgetPage;
 
 [HtmlTargetElement("inlinewidgetpage", TagStructure = TagStructure.NormalOrSelfClosing)]
-public class PartialWidgetPageTagHelper : TagHelper
+public class PartialWidgetPageTagHelper : PartialWidgetPageTagHelperBase
 {
-    public PartialWidgetPageTagHelper(IPartialWidgetPageHelper partialWidgetPageHelper)
+    public PartialWidgetPageTagHelper(IPartialWidgetPageHelper partialWidgetPageHelper) : base(partialWidgetPageHelper)
     {
-        PartialWidgetPageHelper = partialWidgetPageHelper;
     }
 
     /// <summary>
@@ -14,28 +13,22 @@ public class PartialWidgetPageTagHelper : TagHelper
     /// </summary>
     public bool InitializeDocumentPrior { get; set; } = true;
 
-    public int WebPageId { get; set; }
-
-    private IPartialWidgetPageHelper PartialWidgetPageHelper { get; }
-    private PreservedPageBuilderContext PreservedContext { get; set; }
-
     public override void Init(TagHelperContext context)
     {
-        PreservedContext = PartialWidgetPageHelper.GetCurrentContext();
+        base.Init(context);
 
         // Preserve Context
         // Change context
         if (InitializeDocumentPrior)
         {
             if (WebPageId > 0) 
-                PartialWidgetPageHelper.ChangeContext(WebPageId);
+                PartialWidgetPageHelper.ChangeContext(WebPageId, Language);
         }
         else
         {
             PartialWidgetPageHelper.ChangeContext();
         }
 
-        base.Init(context);
     }
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
