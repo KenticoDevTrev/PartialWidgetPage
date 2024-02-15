@@ -31,7 +31,7 @@ public class PartialWidgetPageHelper : IPartialWidgetPageHelper
         var context = mContextRetriever.GetContext();
         var pageBuilderContext = mPageBuilderDataContextRetriever.Retrieve();
 
-        IRoutedWebPage page = null;
+        RoutedWebPage page = null;
         if (mWebPageDataContextRetriever.TryRetrieve(out var webPageContext)) page = webPageContext.WebPage;
 
         return new PreservedPageBuilderContext
@@ -51,7 +51,12 @@ public class PartialWidgetPageHelper : IPartialWidgetPageHelper
     {
         var wbi = mMWebPageItemInfoProvider.Get(id);
 
-        var routedPage = new PartialWidgetPageDataContextWebPage(wbi.WebPageItemID, language);
+        var routedPage = new RoutedWebPage
+        {
+            WebPageItemID = wbi.WebPageItemID,
+            ContentTypeName = wbi.ClassName,
+            LanguageName = language
+        };
 
         ChangeContextInternal(routedPage);
     }
@@ -77,7 +82,7 @@ public class PartialWidgetPageHelper : IPartialWidgetPageHelper
         return mHttpContextAccessor.HttpContext.PartialWidgetPage().LayoutIfNotAjax(layout);
     }
 
-    private void ChangeContextInternal(IRoutedWebPage webPage = null)
+    private void ChangeContextInternal(RoutedWebPage webPage = null)
     {
         var context = mContextRetriever.GetContext();
         var options = context.Kentico().PageBuilder().Options;
