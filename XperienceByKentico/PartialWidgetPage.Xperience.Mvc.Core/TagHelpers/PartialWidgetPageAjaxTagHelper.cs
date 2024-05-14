@@ -12,6 +12,7 @@ public class PartialWidgetPageAjaxTagHelper : TagHelper
     private readonly IWebPageUrlRetriever mMPageUrlRetriever;
     private readonly IWebsiteChannelContext mWebsiteChannelContext;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.  - The ViewContext will not be null and is set this way
     public PartialWidgetPageAjaxTagHelper(IWebPageUrlRetriever pageUrlRetriever,
         IPreferredLanguageRetriever contentLanguageRetriever,
         IWebsiteChannelContext websiteChannelContext)
@@ -20,14 +21,17 @@ public class PartialWidgetPageAjaxTagHelper : TagHelper
         mPreferredLanguageRetriever = contentLanguageRetriever;
         mWebsiteChannelContext = websiteChannelContext;
     }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
+    [ViewContext] 
+    [HtmlAttributeNotBound]
+    public ViewContext ViewContext { get; set; }
 
     /// <summary>
     ///     If provided, this will be the relative URL the ajax call will make.  If not provided, will get the Relative Url
     ///     from the Page or DocumentID
     /// </summary>
-    public string RelativeUrl { get; set; }
+    public string RelativeUrl { get; set; } = string.Empty;
 
     /// <summary>
     ///     The language of the Web Page you wish to retrieve
@@ -40,7 +44,7 @@ public class PartialWidgetPageAjaxTagHelper : TagHelper
     /// </summary>
     public int WebPageId { get; set; }
 
-    protected string AjaxUrl { get; set; }
+    protected string AjaxUrl { get; set; } = string.Empty;
     private bool Render { get; set; }
 
     public override void Init(TagHelperContext context)

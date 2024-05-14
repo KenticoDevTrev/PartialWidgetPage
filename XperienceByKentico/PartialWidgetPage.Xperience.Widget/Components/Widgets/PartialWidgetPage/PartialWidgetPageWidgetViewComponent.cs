@@ -95,7 +95,8 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
                         break;
                     case PartialWidgetPageWidgetRenderMode.ServerSide:
 
-                        var className = await mWebPageInfoProvider.RetrieveClassName(page.WebPageItemID, ViewContext.HttpContext.RequestAborted);
+                        var info = await mWebPageInfoProvider.GetAsync(page.WebPageItemID, ViewContext.HttpContext.RequestAborted);
+                        var className = info.ClassName;
                         model.Renderer = mPartialWidgetRenderingRetriever.GetRenderingViewComponent(className, page.WebPageItemID);
                         model.WebPageId = page.WebPageItemID;
 

@@ -66,8 +66,7 @@ internal class RenderPageViewModelGenerator : IRenderPageViewModelGenerator
                     if (method != null)
                     {
                         var result = method.Invoke(componentViewModelOfTProperties,
-                            new object?[]
-                                {webPageContext.WebPage, pageBuilderContext.Configuration.PageTemplate.Properties});
+                            [webPageContext.WebPage, pageBuilderContext.Configuration.PageTemplate.Properties]);
 
                         if (result != null) model.ComponentViewModel = result;
                     }

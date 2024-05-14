@@ -22,11 +22,13 @@ public class PartialWidgetPageWidgetModel : IWidgetProperties
     [EditingComponent(PageSelector.IDENTIFIER, Order = 3, Label = "Page", Tooltip = "The Page to Render")]
     public IEnumerable<PageSelectorItem> Page { get; set; } = Enumerable.Empty<PageSelectorItem>();
 
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.  Kentico uses the string? to signify a nullable string.
     [EditingComponent(TextInputComponent.IDENTIFIER, Order = 4, Label = "Custom Url",
         Tooltip = "The relative Url to render, will overwrite the Path if provided",
         ExplanationText = "Overwrites the path if provided")]
     [VisibilityCondition(nameof(RenderMode), ComparisonTypeEnum.IsEqualTo, "Ajax")]
     public string? CustomUrl { get; set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
     [EditingComponent(CheckBoxComponent.IDENTIFIER, Label = "Use preferred language?", Order = 90)]
     public bool UsePreferredLanguage { get; set; }

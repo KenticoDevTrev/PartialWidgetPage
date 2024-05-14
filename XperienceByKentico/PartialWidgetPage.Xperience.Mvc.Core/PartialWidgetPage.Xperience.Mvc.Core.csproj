@@ -9,18 +9,21 @@
 		<LangVersion>latest</LangVersion>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
-		<Version>27.0.0</Version>
-		<Authors></Authors>
+		<Version>28.0.0</Version>
+		<Authors>Trevor F and Josh K</Authors>
 		<Company></Company>
 		<Product>Partial Widget Page</Product>
-		<Description>For Xperience by Kentico .net Core only, provides tag helpers and interfaces to be able to render other pages (with widgets) in your page.  Useful for things like Mega Menus, editable header/footers, Tabs, accordions, etc.</Description>
+		<Description>For Xperience by Kentico sotes, provides tag helpers and interfaces to be able to render other pages (with widgets) in your page.  Useful for things like Mega Menus, editable header/footers, Tabs, accordions, etc.</Description>
 		<Copyright></Copyright>
 		<PackageProjectUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</PackageProjectUrl>
 		<PackageIcon>kentico.png</PackageIcon>
 		<RepositoryUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</RepositoryUrl>
 		<RepositoryType>GIT</RepositoryType>
 		<PackageTags>Xperience By Kentico, Page Builder, Widgets</PackageTags>
-		<PackageReleaseNotes>Adding &lt;vc:render-page document-id="" /&gt; and &lt;vc:render-page-optimized typed-page=@MyTypedTreeNode /&gt; View Component that resolves the inline page using normal kentico routing, including Page Template support.</PackageReleaseNotes>
+		<PackageReleaseNotes>Initial release of Xperience by Kentico port, thanks to Josh Kerbaugh</PackageReleaseNotes>
+		<PackageId></PackageId>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<AssemblyName>XperienceCommunity.PartialWidgetPage</AssemblyName>
 
 	</PropertyGroup>
 
@@ -42,9 +45,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="$(SolutionDir)\kentico.png">
+		<None Include="..\..\..\kentico.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 
