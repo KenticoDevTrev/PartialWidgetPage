@@ -339,3 +339,4 @@ packages
 
 # Removing nuget build file
 *.bat
+**/.idea
