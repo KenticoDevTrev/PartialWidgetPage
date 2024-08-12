@@ -9,7 +9,7 @@
 		<LangVersion>latest</LangVersion>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
-		<Version>28.0.0</Version>
+		<Version>29.0.0</Version>
 		<Authors>Trevor F and Josh K</Authors>
 		<Company></Company>
 		<Product>Partial Widget Page</Product>
