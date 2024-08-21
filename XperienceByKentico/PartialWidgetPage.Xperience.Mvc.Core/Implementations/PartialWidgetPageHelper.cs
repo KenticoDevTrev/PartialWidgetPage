@@ -1,6 +1,4 @@
-﻿using Kentico.Web.Mvc.Internal;
-
-namespace PartialWidgetPage;
+﻿namespace PartialWidgetPage;
 
 public class PartialWidgetPageHelper : IPartialWidgetPageHelper
 {
