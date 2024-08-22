@@ -9,5 +9,5 @@ public interface IPartialWidgetRenderingRetriever
     /// <param name="className">The Class Name</param>
     /// <param name="webPageId">The webPageId in case page-specific context is needed</param>
     /// <returns>The Partial Widget rendering</returns>
-    public ParitalWidgetRendering GetRenderingViewComponent(string className, int webPageId = 0);
+    public PartialWidgetRendering? GetRenderingViewComponent(string className, int webPageId = 0);
 }

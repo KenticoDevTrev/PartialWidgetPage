@@ -1,58 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>disable</Nullable>
-		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-		<RootNamespace>PartialWidgetPage</RootNamespace>
-		<LangVersion>latest</LangVersion>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-
-		<Version>28.0.0</Version>
-		<Authors>Trevor F and Josh K</Authors>
-		<Company></Company>
-		<Product>Partial Widget Page</Product>
-		<Description>For Xperience by Kentico sotes, provides tag helpers and interfaces to be able to render other pages (with widgets) in your page.  Useful for things like Mega Menus, editable header/footers, Tabs, accordions, etc.</Description>
-		<Copyright></Copyright>
-		<PackageProjectUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</PackageProjectUrl>
-		<PackageIcon>kentico.png</PackageIcon>
-		<RepositoryUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</RepositoryUrl>
-		<RepositoryType>GIT</RepositoryType>
-		<PackageTags>Xperience By Kentico, Page Builder, Widgets</PackageTags>
-		<PackageReleaseNotes>Initial release of Xperience by Kentico port, thanks to Josh Kerbaugh</PackageReleaseNotes>
-		<PackageId></PackageId>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<AssemblyName>XperienceCommunity.PartialWidgetPage</AssemblyName>
-
 	</PropertyGroup>
-
+	
 	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<AssemblyAttribute Include="CMS.AssemblyDiscoverableAttribute">
-		</AssemblyAttribute>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>PartialWidgetPage.Xperience.Mvc.Widget</_Parameter1>
+			<_Parameter1>XperienceCommunity.PartialWidgetPage.Widget</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="kentico.xperience.webapp" />
-
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\..\..\kentico.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="..\..\README.md">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
-		</None>
+	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="src\js\pwp.js">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<Target Name="NpmInstall" BeforeTargets="NpmBuildClient">
+		<Exec Command="npm ci --no-audit --no-fund" WorkingDirectory="$(MSBuildProjectDirectory)" />
+	</Target>
+	<Target Name="NpmBuildClient" BeforeTargets="BeforeBuild">
+		<Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)" />
+	</Target>
 </Project>

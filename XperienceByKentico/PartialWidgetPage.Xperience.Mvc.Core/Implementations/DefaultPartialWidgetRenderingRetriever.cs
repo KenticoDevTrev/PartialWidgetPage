@@ -2,7 +2,7 @@
 
 internal class DefaultPartialWidgetRenderingRetriever : IPartialWidgetRenderingRetriever
 {
-    public ParitalWidgetRendering GetRenderingViewComponent(string className, int webPageId = 0)
+    public PartialWidgetRendering? GetRenderingViewComponent(string className, int webPageId = 0)
     {
         return default;
     }

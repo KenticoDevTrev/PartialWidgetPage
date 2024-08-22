@@ -1,58 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>disable</Nullable>
-		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-		<RootNamespace>PartialWidgetPage</RootNamespace>
-		<LangVersion>latest</LangVersion>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-
-		<Version>28.0.0</Version>
-		<Authors>Trevor F and Josh K</Authors>
-		<Company></Company>
-		<Product>Partial Widget Page</Product>
-		<Description>For Xperience by Kentico sites, provides tag helpers and interfaces to be able to render other pages (with widgets) in your page.  Useful for things like Mega Menus, editable header/footers, Tabs, accordions, etc.</Description>
-		<Copyright></Copyright>
-		<PackageProjectUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</PackageProjectUrl>
-		<PackageIcon>kentico.png</PackageIcon>
-		<RepositoryUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</RepositoryUrl>
-		<RepositoryType>GIT</RepositoryType>
-		<PackageTags>Xperience By Kentico, Page Builder, Widgets</PackageTags>
-		<PackageReleaseNotes>Initial release of Xperience by Kentico port, thanks to Josh Kerbaugh</PackageReleaseNotes>
 		<AssemblyName>XperienceCommunity.PartialWidgetPage.Widget</AssemblyName>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-
 	</PropertyGroup>
-
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<AssemblyAttribute Include="CMS.AssemblyDiscoverableAttribute">
-		</AssemblyAttribute>
-	</ItemGroup>
-
+	
 	<ItemGroup>
 		<PackageReference Include="kentico.xperience.webapp" />
-
 	</ItemGroup>
-
+	
 	<ItemGroup>
-	  <ProjectReference Include="$(ProjectDir)..\PartialWidgetPage.Xperience.Mvc.Core\PartialWidgetPage.Xperience.Mvc.Core.csproj" />
+	  <ProjectReference Include="..\PartialWidgetPage.Xperience.Mvc.Core\PartialWidgetPage.Xperience.Mvc.Core.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\..\..\kentico.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="..\..\README.md">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-
 </Project>

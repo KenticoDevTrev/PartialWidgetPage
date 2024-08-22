@@ -1,31 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using CMS.Websites.Routing;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace PartialWidgetPage
 {
-    public class PartialWidgetPageTagHelperBase : TagHelper
+    public class PartialWidgetPageTagHelperBase(
+        IPartialWidgetPageHelper partialWidgetPageHelper,
+        IWebsiteChannelContext channelContext
+    ) : TagHelper
     {
-        [ViewContext][HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
-        public string Language { get; set; }
+        [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; } = null!;
 
-        public int WebPageId { get; set; }
+        public string Language { get; set; } = "";
+        public int WebPageId { get; set; } = 0;
+        public string Channel { get; set; } = channelContext.WebsiteChannelName;
 
-        protected PreservedPageBuilderContext PreservedContext { get; set; }
+        protected PreservedPageBuilderContext PreservedContext =>
+            PartialWidgetPageHelper.GetCurrentContext();
 
-
-        protected readonly IPartialWidgetPageHelper PartialWidgetPageHelper;
-
-        public PartialWidgetPageTagHelperBase(IPartialWidgetPageHelper partialWidgetPageHelper)
-        {
-            PartialWidgetPageHelper = partialWidgetPageHelper;
-        }
+        protected readonly IPartialWidgetPageHelper PartialWidgetPageHelper = partialWidgetPageHelper;
 
         public override void Init(TagHelperContext context)
         {
-            PreservedContext = PartialWidgetPageHelper.GetCurrentContext();
+            var (_, _, page) = PreservedContext;
 
-            if (string.IsNullOrWhiteSpace(Language))
-                Language = PreservedContext.Page.LanguageName;
+            if (string.IsNullOrWhiteSpace(Language) && page is not null)
+                Language = page.LanguageName;
 
             base.Init(context);
         }

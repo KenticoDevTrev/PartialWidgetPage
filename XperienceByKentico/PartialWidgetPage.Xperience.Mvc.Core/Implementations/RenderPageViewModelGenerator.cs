@@ -3,45 +3,27 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 
 namespace PartialWidgetPage;
 
-internal class RenderPageViewModelGenerator : IRenderPageViewModelGenerator
+internal class RenderPageViewModelGenerator(
+    IPageBuilderDataContextRetriever pageBuilderDataContextRetriever,
+    IWebPageDataContextRetriever webPageDataContextRetriever,
+    IInfoProvider<WebPageItemInfo> webPageItemInfoProvider,
+    ICompositeViewEngine compositeViewEngine)
+    : IRenderPageViewModelGenerator
 {
     private const string VIEW_DEFAULT_PATH = "~/Views/Shared/ContentTypes/{0}.cshtml";
-    private readonly IComponentDefinitionProvider<PageTemplateDefinition> mComponentDefinitionProvider;
+    private readonly IComponentDefinitionProvider<PageTemplateDefinition> mComponentDefinitionProvider = new ComponentDefinitionProvider<PageTemplateDefinition>();
 
-
-    private readonly ICompositeViewEngine mCompositeViewEngine;
-    private readonly IPageBuilderDataContextRetriever mPageBuilderDataContextRetriever;
-
-    private readonly IWebPageDataContextRetriever mWebPageDataContextRetriever;
-
-    private readonly IInfoProvider<WebPageItemInfo> mWebPageItemInfoProvider;
-
-    public RenderPageViewModelGenerator(
-        IPageBuilderDataContextRetriever pageBuilderDataContextRetriever,
-        IWebPageDataContextRetriever webPageDataContextRetriever,
-        IInfoProvider<WebPageItemInfo> webPageItemInfoProvider,
-        ICompositeViewEngine compositeViewEngine)
-    {
-        mPageBuilderDataContextRetriever = pageBuilderDataContextRetriever;
-        mWebPageDataContextRetriever = webPageDataContextRetriever;
-        mWebPageItemInfoProvider = webPageItemInfoProvider;
-        mCompositeViewEngine = compositeViewEngine;
-
-        mComponentDefinitionProvider = new ComponentDefinitionProvider<PageTemplateDefinition>();
-    }
 
     public async Task<RenderPageViewModel> GeneratePageViewModel(int pageId,
         PreservedPageBuilderContext preservedPageBuilderContext, CancellationToken token = default)
     {
-        var webPageContext = mWebPageDataContextRetriever.Retrieve();
-        var pageBuilderContext = mPageBuilderDataContextRetriever.Retrieve();
+        var webPageContext = webPageDataContextRetriever.Retrieve();
+        var pageBuilderContext = pageBuilderDataContextRetriever.Retrieve();
 
 
-        var model = new RenderPageViewModel
-        {
-            ViewPath = await GetViewPath(pageId, token),
-            ComponentViewModel = ComponentViewModel.Create(webPageContext.WebPage)
-        };
+        var path = await GetViewPath(pageId, token);
+        var component = ComponentViewModel.Create(webPageContext.WebPage);
+        var model = new RenderPageViewModel(path, component);
 
         //page uses page template
         if (pageBuilderContext.Configuration.PageTemplate != null)
@@ -52,9 +34,12 @@ internal class RenderPageViewModelGenerator : IRenderPageViewModelGenerator
 
             if (definition != null)
             {
-                model.ViewPath = definition.IsCustom
-                    ? definition.ViewPath
-                    : $"PageTemplates/_{definition.Identifier}";
+                model = model with
+                {
+                    ViewPath = definition.IsCustom
+                        ? definition.ViewPath
+                        : $"PageTemplates/_{definition.Identifier}"
+                };
 
                 //Page Template Definition has properties
                 if (definition.PropertiesType != null)
@@ -68,19 +53,28 @@ internal class RenderPageViewModelGenerator : IRenderPageViewModelGenerator
                         var result = method.Invoke(componentViewModelOfTProperties,
                             [webPageContext.WebPage, pageBuilderContext.Configuration.PageTemplate.Properties]);
 
-                        if (result != null) model.ComponentViewModel = result;
+                        if (result != null)
+                        {
+                            model = model with
+                            {
+                                ComponentViewModel = result
+                            };
+                        }
                     }
                 }
             }
         }
 
-        model.ViewExists = mCompositeViewEngine.GetView(null, model.ViewPath, false).Success;
+        model = model with
+        {
+            ViewExists = compositeViewEngine.GetView(null, model.ViewPath, false).Success
+        };
 
         return model;
     }
 
     private async Task<string> GetViewPath(int pageId, CancellationToken token = default)
     {
-        return string.Format(VIEW_DEFAULT_PATH, (await mWebPageItemInfoProvider.RetrieveClassName(pageId, token: token)).Replace('.', '_'));
+        return string.Format(VIEW_DEFAULT_PATH, (await webPageItemInfoProvider.RetrieveClassName(pageId, token: token)).Replace('.', '_'));
     }
 }

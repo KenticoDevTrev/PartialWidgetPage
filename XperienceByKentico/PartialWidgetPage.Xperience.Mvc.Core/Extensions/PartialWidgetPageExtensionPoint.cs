@@ -1,25 +1,10 @@
 ﻿namespace PartialWidgetPage;
 
-public class PartialWidgetPageExtensionPoint
+public class PartialWidgetPageExtensionPoint(HttpContext context)
 {
-    internal readonly HttpContext Instance;
+    public string? LayoutIfNotAjax(string layout) => 
+        context.Request.Query.ContainsKey(PARTIAL_WIDGET_AJAX_ID) ? null : layout;
 
-    public PartialWidgetPageExtensionPoint(HttpContext context)
-    {
-        Instance = context;
-    }
-
-    public string LayoutIfNotAjax(string layout)
-    {
-        if (Instance.Request.Query.ContainsKey(PARTIAL_WIDGET_AJAX_ID)) return null;
-
-        return layout;
-    }
-
-    public string LayoutIfEditMode(string layout)
-    {
-        if (!Instance.Kentico().PageBuilder().EditMode) return null;
-
-        return layout;
-    }
+    public string? LayoutIfEditMode(string layout) => 
+        !context.Kentico().PageBuilder().EditMode ? null : layout;
 }

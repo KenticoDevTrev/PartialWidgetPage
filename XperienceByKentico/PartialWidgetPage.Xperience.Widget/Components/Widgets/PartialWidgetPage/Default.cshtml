@@ -1,39 +1,27 @@
 ﻿@using PartialWidgetPage
 @model PartialWidgetPage.PartialWidgetPageViewComponentModel
-@addTagHelper *, PartialWidgetPage.Xperience.Mvc.Core
+@addTagHelper *, XperienceCommunity.PartialWidgetPage
 
-@if (!Model.Render)
+@switch (Model.RenderMode)
 {
-    if (!string.IsNullOrWhiteSpace(Model.Error))
+    case PartialWidgetPageWidgetRenderMode.Ajax:
     {
-        <p style="color: red;">Error: @Model.Error</p>
+        <ajaxwidgetpage relative-url=@Model.AjaxUrl language=@Model.Language></ajaxwidgetpage>
+        break;
     }
-    else
+    case PartialWidgetPageWidgetRenderMode.ServerSide:
     {
-        <p>Configure widget to render partial page.</p>
-    }
-}
-else
-{
-    if (Model.RenderMode == PartialWidgetPageWidgetRenderMode.Ajax)
-    {
-        <ajaxwidgetpage relative-url=@Model.AjaxUrl language=@Model.Language />
-    }
-    if (Model.RenderMode == PartialWidgetPageWidgetRenderMode.ServerSide)
-    {
-        if (Model.Renderer != null)
+        if (Model.Renderer is not null)
         {
             <inlinewidgetpage initialize-document-prior=@Model.Renderer.SetContextPriorToCall web-page-id=@Model.WebPageId language=@Model.Language>
                 @await Component.InvokeAsync(Model.Renderer.ViewComponentName, Model.Renderer.ViewComponentData)
             </inlinewidgetpage>
         }
-        else
-        {
-            <p style="color: red">There was no Renderer defined in the IPartialWidgetRenderingRetreiver.GetRenderingViewComponent for this class. Please have a developer return a ParitalWidgetRendering for this class prior to usage or set the mode to ServerSide.</p>
-        }
+        break;
     }
-    if (Model.RenderMode == PartialWidgetPageWidgetRenderMode.ServerSidePageBuilderLogic)
+    case PartialWidgetPageWidgetRenderMode.ServerSidePageBuilderLogic:
     {
         <render-page web-page-id=@Model.WebPageId language=@Model.Language />
+        break;
     }
 }

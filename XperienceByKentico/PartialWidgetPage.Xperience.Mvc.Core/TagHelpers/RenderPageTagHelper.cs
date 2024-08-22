@@ -1,27 +1,19 @@
 ﻿using CMS.Core;
+using CMS.Websites.Routing;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace PartialWidgetPage;
 
-public class RenderPageTagHelper : PartialWidgetPageTagHelperBase
+public class RenderPageTagHelper(
+    IPartialWidgetPageHelper partialWidgetPageHelper,
+    IEventLogService eventLogService,
+    IRenderPageViewModelGenerator pageViewModelGenerator,
+    IWebsiteChannelContext channelContext,
+    IHtmlHelper htmlHelper)
+    : PartialWidgetPageTagHelperBase(partialWidgetPageHelper, channelContext)
 {
-    private readonly IEventLogService mEventLogService;
-    private readonly IHtmlHelper mHtmlHelper;
-    private readonly IRenderPageViewModelGenerator mPageViewModelGenerator;
-
-    private readonly IPartialWidgetPageHelper mPartialWidgetPageHelper;
-
-    public RenderPageTagHelper(IPartialWidgetPageHelper partialWidgetPageHelper,
-        IEventLogService eventLogService,
-        IRenderPageViewModelGenerator pageViewModelGenerator,
-        IHtmlHelper htmlHelper) : base(partialWidgetPageHelper)
-    {
-        mPartialWidgetPageHelper = partialWidgetPageHelper;
-        mPageViewModelGenerator = pageViewModelGenerator;
-        mHtmlHelper = htmlHelper;
-        mEventLogService = eventLogService;
-    }
+    private readonly IPartialWidgetPageHelper mPartialWidgetPageHelper = partialWidgetPageHelper;
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
@@ -33,17 +25,17 @@ public class RenderPageTagHelper : PartialWidgetPageTagHelperBase
 
         output.TagName = null;
 
-        ((IViewContextAware) mHtmlHelper).Contextualize(ViewContext);
+        ((IViewContextAware) htmlHelper).Contextualize(ViewContext);
 
         try
         {
-            mPartialWidgetPageHelper.ChangeContext(WebPageId, Language);
+            await mPartialWidgetPageHelper.ChangeContextAsync(WebPageId, Language, Channel, ViewContext.HttpContext.RequestAborted);
 
-            var model = await mPageViewModelGenerator.GeneratePageViewModel(WebPageId, PreservedContext,
+            var model = await pageViewModelGenerator.GeneratePageViewModel(WebPageId, PreservedContext,
                 ViewContext.HttpContext.RequestAborted);
 
             if (model.ViewExists)
-                output.Content.SetHtmlContent(await mHtmlHelper.PartialAsync(model.ViewPath,
+                output.Content.SetHtmlContent(await htmlHelper.PartialAsync(model.ViewPath,
                     model.ComponentViewModel));
             else
                 output.Content.SetHtmlContent(@$"
@@ -54,7 +46,7 @@ public class RenderPageTagHelper : PartialWidgetPageTagHelperBase
         }
         catch (Exception ex)
         {
-            mEventLogService.LogException("PartialWidgetPage", "RENDER", ex);
+            eventLogService.LogException("PartialWidgetPage", "RENDER", ex);
             output.SuppressOutput();
         }
 

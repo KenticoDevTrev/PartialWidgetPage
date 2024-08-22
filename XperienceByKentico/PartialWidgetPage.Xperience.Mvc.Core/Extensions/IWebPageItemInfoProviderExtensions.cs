@@ -1,6 +1,4 @@
-﻿using CMS.Helpers;
-
-namespace PartialWidgetPage
+﻿namespace PartialWidgetPage
 {
     internal static class WebPageItemInfoProviderExtensions
     {

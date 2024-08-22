@@ -5,6 +5,7 @@ using CMS.Websites.Internal;
 using CMS.Websites.Routing;
 using Kentico.Content.Web.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PartialWidgetPage;
 
 [assembly: RegisterWidget(PartialWidgetPageWidgetModel.IDENTITY,
@@ -58,66 +59,82 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
         if (!properties.UsePreferredLanguage && properties.Language.Any())
             model.Language = properties.Language.First().ObjectCodeName;
 
-
-        var page = await GetPage(properties, ViewContext.HttpContext.RequestAborted);
-
-        if (page == null)
+        if (Enum.TryParse<PartialWidgetPageWidgetRenderMode>(properties.RenderMode, out var result))
         {
-            model.Render = false;
-            model.Error = "Could not locate Page, please check configuration";
-        }
-        else
-        {
-            if (Enum.TryParse<PartialWidgetPageWidgetRenderMode>(properties.RenderMode, out var result))
+            var page = await GetPage(properties, ViewContext.HttpContext.RequestAborted);
+
+            model.RenderMode = result;
+
+            switch (result)
             {
-                model.RenderMode = result;
-
-                switch (result)
-                {
-                    case PartialWidgetPageWidgetRenderMode.Ajax:
-                        if (!string.IsNullOrWhiteSpace(properties.CustomUrl))
-                        {
-                            model.AjaxUrl = properties.CustomUrl;
-                        }
-                        else
-                        {
-                            var url = await mUrlRetriever.Retrieve(page.WebPageItemGUID, model.Language,
-                                mWebsiteChannelContext.IsPreview, ViewContext.HttpContext.RequestAborted);
-
-                            model.AjaxUrl = url.RelativePath;
-                        }
-
-                        break;
-                    case PartialWidgetPageWidgetRenderMode.ServerSidePageBuilderLogic:
-
-                        model.WebPageId = page.WebPageItemID;
-
-                        break;
-                    case PartialWidgetPageWidgetRenderMode.ServerSide:
-
-                        var info = await mWebPageInfoProvider.GetAsync(page.WebPageItemID, ViewContext.HttpContext.RequestAborted);
-                        var className = info.ClassName;
-                        model.Renderer = mPartialWidgetRenderingRetriever.GetRenderingViewComponent(className, page.WebPageItemID);
-                        model.WebPageId = page.WebPageItemID;
-
-                        break;
-                    default:
+                case PartialWidgetPageWidgetRenderMode.Ajax:
+                    if (!string.IsNullOrWhiteSpace(properties.CustomUrl))
                     {
-                        model.Render = false;
-                        break;
+                        model.AjaxUrl = properties.CustomUrl;
                     }
+                    else if (page is not null)
+                    {
+                        var url = await mUrlRetriever.Retrieve(page.WebPageItemGUID, model.Language,
+                            mWebsiteChannelContext.IsPreview, ViewContext.HttpContext.RequestAborted);
+
+                        model.AjaxUrl = url.RelativePath;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Could not locate Page, please check configuration");
+                    }
+
+                    break;
+                case PartialWidgetPageWidgetRenderMode.ServerSidePageBuilderLogic:
+
+                    if (page is not null)
+                    {
+                        model.WebPageId = page.WebPageItemID;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Could not locate Page, please check configuration");
+                    }
+
+                    break;
+                case PartialWidgetPageWidgetRenderMode.ServerSide:
+
+                    if (page is not null)
+                    {
+                        var info = await mWebPageInfoProvider.GetAsync(page.WebPageItemID,
+                            ViewContext.HttpContext.RequestAborted);
+                        var className = info.ClassName;
+                        model.Renderer =
+                            mPartialWidgetRenderingRetriever.GetRenderingViewComponent(className,
+                                page.WebPageItemID);
+                        model.WebPageId = page.WebPageItemID;
+
+                        if (model.Renderer is null)
+                        {
+                            ModelState.AddModelError("",
+                                "There was no Renderer defined in the IPartialWidgetRenderingRetreiver.GetRenderingViewComponent for this class. Please have a developer return a ParitalWidgetRendering for this class prior to usage or set the mode to ServerSide.");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Could not locate Page, please check configuration");
+                    }
+
+                    break;
+                default:
+                {
+                    ModelState.AddModelError("", "Unknown Render Mode");
+                    break;
                 }
             }
-            else
-            {
-                model.Render = false;
-            }
         }
 
-        return View("~/Components/Widgets/PartialWidgetPage/Default.cshtml", model);
+        return View(!ModelState.IsValid ? 
+            "~/Components/Widgets/PartialWidgetPage/ComponentError.cshtml" : 
+            "~/Components/Widgets/PartialWidgetPage/Default.cshtml", model);
     }
 
-    private async Task<WebPageItemInfo> GetPage(PartialWidgetPageWidgetModel widgetModel, CancellationToken token = default)
+    private async Task<WebPageItemInfo?> GetPage(PartialWidgetPageWidgetModel widgetModel, CancellationToken token = default)
     {
         if (widgetModel.Page.Any())
         {

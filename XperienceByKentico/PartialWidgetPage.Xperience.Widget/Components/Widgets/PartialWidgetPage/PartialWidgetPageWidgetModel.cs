@@ -1,4 +1,8 @@
 ﻿using CMS.ContentEngine;
+using CMS.Websites;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+using Kentico.Xperience.Admin.Base.Forms;
+using Kentico.Xperience.Admin.Websites.FormAnnotations;
 
 namespace PartialWidgetPage;
 
@@ -12,30 +16,28 @@ public class PartialWidgetPageWidgetModel : IWidgetProperties
             Ajax loads the content client-side [automatic routing, cache dependency separate]
         ";
 
-    [EditingComponent(DropDownComponent.IDENTIFIER, DefaultValue = RENDER_MODE_SERVER_PAGE_BUILDER_LOGIC,
+    [DropDownComponent(
         Label = "Render Mode",
         Tooltip = RENDER_MODE_TIP,
-        ExplanationText = "Hover for more info", Order = 0)]
-    [EditingComponentProperty(nameof(DropDownProperties.DataSource), RENDER_MODE_SOURCE)]
-    public string RenderMode { get; set; } = RENDER_MODE_AJAX;
+        ExplanationText = "Hover for more info", Order = 0,
+        Options = RENDER_MODE_SOURCE)]
+    public string RenderMode { get; set; } = RENDER_MODE_SERVER_PAGE_BUILDER_LOGIC;
 
-    [EditingComponent(PageSelector.IDENTIFIER, Order = 3, Label = "Page", Tooltip = "The Page to Render")]
-    public IEnumerable<PageSelectorItem> Page { get; set; } = Enumerable.Empty<PageSelectorItem>();
+    [WebPageSelectorComponent(Label = "Page", Tooltip = "The Page to Render", Order = 3)]
+    [VisibleIfNotEqualTo(nameof(RenderMode), "Ajax")]
+    public IEnumerable<WebPageRelatedItem> Page { get; set; } = [];
 
-#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.  Kentico uses the string? to signify a nullable string.
-    [EditingComponent(TextInputComponent.IDENTIFIER, Order = 4, Label = "Custom Url",
+    [VisibleIfEqualTo(nameof(RenderMode), "Ajax")]
+    [UrlSelectorComponent(Label = "Custom Url",
         Tooltip = "The relative Url to render, will overwrite the Path if provided",
-        ExplanationText = "Overwrites the path if provided")]
-    [VisibilityCondition(nameof(RenderMode), ComparisonTypeEnum.IsEqualTo, "Ajax")]
+        ExplanationText = "Overwrites the path if provided",
+        Order = 4)]
     public string? CustomUrl { get; set; }
-#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
-    [EditingComponent(CheckBoxComponent.IDENTIFIER, Label = "Use preferred language?", Order = 90)]
-    public bool UsePreferredLanguage { get; set; }
+    [CheckBoxComponent(Label = "Use preferred language?", Order = 90)]
+    public bool UsePreferredLanguage { get; set; } = false;
 
-    [EditingComponent(ObjectSelector.IDENTIFIER, Label = "Language to use?", Order = 91)]
-    [EditingComponentProperty(nameof(ObjectSelectorProperties.ObjectType), ContentLanguageInfo.OBJECT_TYPE)]
-    [EditingComponentProperty(nameof(ObjectSelectorProperties.MaxItemsLimit), 1)]
-    [VisibilityCondition(nameof(UsePreferredLanguage), ComparisonTypeEnum.IsFalse)]
-    public IEnumerable<ObjectSelectorItem> Language { get; set; } = Enumerable.Empty<ObjectSelectorItem>();
+    [VisibleIfFalse(nameof(UsePreferredLanguage))]
+    [ObjectSelectorComponent(ContentLanguageInfo.OBJECT_TYPE, Label = "Language to use?", Order = 91, MaximumItems = 1)]
+    public IEnumerable<ObjectRelatedItem> Language { get; set; } = [];
 }

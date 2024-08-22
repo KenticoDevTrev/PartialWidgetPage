@@ -1,0 +1,66 @@
+<Project>
+      <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <NoWarn>$(NoWarn);CS1030</NoWarn>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <LangVersion>latest</LangVersion>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+        <RootNamespace>PartialWidgetPage</RootNamespace>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageOutputPath>$(SolutionDir)nupkg</PackageOutputPath>
+
+      </PropertyGroup>
+    
+    <PropertyGroup>
+        <Version>28.1.0</Version>
+        <Authors>Trevor F and Josh K</Authors>
+        <Product>Partial Widget Page</Product>
+        <Copyright>2024</Copyright>
+        <PackageProjectUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</PackageProjectUrl>
+        <PackageIcon>kentico.png</PackageIcon>
+        <RepositoryUrl>https://github.com/KenticoDevTrev/PartialWidgetPage</RepositoryUrl>
+        <RepositoryType>GIT</RepositoryType>
+        <PackageTags>Xperience By Kentico, Page Builder, Widgets</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+
+        
+        <Description>
+            For Xperience by Kentico sites, provides tag helpers and interfaces to be able to render other pages
+            (with widgets) in your page.  Useful for things like Mega Menus, editable header/footers, Tabs, a
+            ccordions, etc.
+        </Description>
+        <PackageReleaseNotes>
+            Forward Compatibility fixes for version >= 29.0.0
+            Language query fixes
+            Allow channel selection
+        </PackageReleaseNotes>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" $(Configuration) == 'Release' ">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="CMS.AssemblyDiscoverableAttribute" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <None Include="$(SolutionDir)kentico.png">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="../../README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+</Project>
