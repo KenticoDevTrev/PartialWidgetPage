@@ -59,6 +59,9 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
         if (!properties.UsePreferredLanguage && properties.Language.Any())
             model.Language = properties.Language.First().ObjectCodeName;
 
+        if (!string.IsNullOrWhiteSpace(properties.Identifier))
+            model.Identifier = properties.Identifier;
+        
         if (Enum.TryParse<PartialWidgetPageWidgetRenderMode>(properties.RenderMode, out var result))
         {
             var page = await GetPage(properties, ViewContext.HttpContext.RequestAborted);

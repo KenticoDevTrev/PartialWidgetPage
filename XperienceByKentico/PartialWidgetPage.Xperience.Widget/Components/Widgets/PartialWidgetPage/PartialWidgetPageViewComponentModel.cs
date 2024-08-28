@@ -6,6 +6,8 @@ public class PartialWidgetPageViewComponentModel
     public string? AjaxUrl { get; set; }
     public int WebPageId { get; set; }
     public PartialWidgetRendering? Renderer { get; set; }
+    
     public string? Error { get; set; }
     public string? Language { get; set; }
+    public string Identifier { get; set; } = $"{Guid.NewGuid():N}";
 }

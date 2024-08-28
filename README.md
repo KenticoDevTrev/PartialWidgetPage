@@ -83,6 +83,22 @@ This tag helper wires up the Client Side Ajax request to pull in page content.  
         <ajaxwidgetpage relative-url="/Custom/CustomResponse" />
         <ajaxwidgetpage web-page-id="123" />
 ```
+
+#### XbyK PartialWidgetPageAjaxTagHelper ####
+When ajax content is processed and loaded a custom event will fire 
+```javascript
+    document.addEventListener('pwp-load', (e) => {
+        //The partial container element that was loaded
+        const element = e.detail.partialElement; 
+        const loadMore = element.querySelector("button[data-load-more");
+        //Reinitialze custom javascript in the ajax loaded element
+        if(loadMore) {
+            loadMore.addEventListener("click", (e) => {
+                alert('Load More Clicked')
+            })
+        }
+    });
+```
 ---
 
 ## Partial Widget Page - Widget

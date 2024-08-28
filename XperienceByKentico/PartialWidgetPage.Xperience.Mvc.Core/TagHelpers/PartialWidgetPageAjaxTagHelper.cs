@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.Text.RegularExpressions;
 using CMS.Websites.Routing;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -27,6 +28,8 @@ public class PartialWidgetPageAjaxTagHelper(
     /// </summary>
     public string? Language { get; set; }
 
+    public string Identifier { get; set; } = "";
+    
     /// <summary>
     ///     The Document ID you wish to get the Relative url from.
     /// </summary>
@@ -63,7 +66,7 @@ public class PartialWidgetPageAjaxTagHelper(
         {
             Render = true;
             // Append Special Url parameter
-            AjaxUrl += $"{(AjaxUrl.IndexOf('?') == -1 ? '?' : '&')}{PARTIAL_WIDGET_AJAX_ID}=true";
+            AjaxUrl = URLHelper.AddQueryParameter(AjaxUrl, PARTIAL_WIDGET_AJAX_ID, bool.TrueString);
         }
         else
         {
@@ -79,19 +82,21 @@ public class PartialWidgetPageAjaxTagHelper(
     {
         if (Render)
         {
-            var url = AjaxUrl;
+            var url = AjaxUrl.AsSpan();
 
-            // resolve Virtual Urls
-            if (ViewContext.HttpContext.Request.PathBase.HasValue)
-                url = url.Replace("~", ViewContext.HttpContext.Request.PathBase.Value);
-            else
-                url = url.Replace("~", "");
+            if (url.Length > 0 && url[0] == '~')
+            {
+                url = url[1..];
+            }
 
-            var uniqueId = Guid.NewGuid().ToString().Replace("-", "");
-
+            if (string.IsNullOrWhiteSpace(Identifier))
+            {
+                Identifier = $"Partial-{Guid.NewGuid()}:N";
+            }
+            
             var html = $@"
-                <div id=""Partial-{uniqueId}""></div>
-                <script type=""module"">await window.PWP.load({{url: '{url}', id: '{uniqueId}'}});</script>       
+                <div id=""{Identifier}""></div>
+                <script type=""module"">await window.PWP.load({{url: '{url}', id: '{Identifier}'}});</script>       
             ";
             return html;
         }

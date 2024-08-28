@@ -33,6 +33,13 @@ public class PartialWidgetPageWidgetModel : IWidgetProperties
         ExplanationText = "Overwrites the path if provided",
         Order = 4)]
     public string? CustomUrl { get; set; }
+    
+    [VisibleIfEqualTo(nameof(RenderMode), "Ajax")]
+    [TextInputComponent(Label = "Identifier",
+        Tooltip = "Adds this as the custom ID for the loaded partial content",
+        ExplanationText = "Adds this as the custom ID for the loaded partial content",
+        Order = 5)]
+    public string? Identifier { get; set; }
 
     [CheckBoxComponent(Label = "Use preferred language?", Order = 90)]
     public bool UsePreferredLanguage { get; set; } = false;
