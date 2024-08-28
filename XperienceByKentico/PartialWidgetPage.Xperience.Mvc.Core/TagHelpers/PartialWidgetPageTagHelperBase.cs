@@ -15,10 +15,9 @@ namespace PartialWidgetPage
         public int WebPageId { get; set; } = 0;
         public string Channel { get; set; } = channelContext.WebsiteChannelName;
 
-        protected PreservedPageBuilderContext PreservedContext =>
-            PartialWidgetPageHelper.GetCurrentContext();
-
+        
         protected readonly IPartialWidgetPageHelper PartialWidgetPageHelper = partialWidgetPageHelper;
+        protected readonly PreservedPageBuilderContext PreservedContext = partialWidgetPageHelper.GetCurrentContext();
 
         public override void Init(TagHelperContext context)
         {
