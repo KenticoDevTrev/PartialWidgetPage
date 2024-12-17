@@ -6,7 +6,7 @@ public enum PartialWidgetPageWidgetRenderMode
     Ajax,
 
     /// <summary>
-    ///     This will ignore the ParitalWidgetRendering and render whatever View/Template that this page has.
+    ///     This will ignore the PartialWidgetRendering and render whatever View/Template that this page has.
     /// </summary>
     ServerSidePageBuilderLogic
 }

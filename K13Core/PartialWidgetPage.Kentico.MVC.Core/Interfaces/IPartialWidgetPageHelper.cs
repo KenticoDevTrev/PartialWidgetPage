@@ -52,7 +52,7 @@ namespace PartialWidgetPage
         /// <summary>
         /// Gets the URL Parameter that is appended to AJAX requests to trigger a Null layout in LayoutIfEditMode
         /// </summary>
-        /// <returns>The Parital URL Query string Key</returns>
+        /// <returns>The Partial URL Query string Key</returns>
         string GetPartialUrlParameter();
 
         /// <summary>

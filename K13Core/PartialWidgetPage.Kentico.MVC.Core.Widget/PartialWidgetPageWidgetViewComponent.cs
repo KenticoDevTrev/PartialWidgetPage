@@ -37,7 +37,7 @@ namespace PartialWidgetPage
 
         public async Task<IViewComponentResult> InvokeAsync(ComponentViewModel<PartialWidgetPageWidgetModel> widgetProperties)
         {
-            ParitalWidgetPageWidgetViewComponentModel model = new ParitalWidgetPageWidgetViewComponentModel();
+            PartialWidgetPageWidgetViewComponentModel model = new PartialWidgetPageWidgetViewComponentModel();
             if (widgetProperties == null || widgetProperties.Properties == null || (widgetProperties.Properties.Path == null && widgetProperties.Properties.Page == null && widgetProperties.Properties.CustomUrl == null))
             {
                 model.Render = false;
@@ -63,7 +63,7 @@ namespace PartialWidgetPage
                             model.Error = "Could not locate Page, please check configuration";
                             EventLogWriter.WriteLog(new EventLogData(EventTypeEnum.Warning, "PartialWidgetPageWidget", "PAGENOTFOUND")
                             {
-                                EventDescription = "Could not find Page from the configuration of the Parital Widget Page Widget, located on page: " + widgetProperties.Page.NodeAliasPath
+                                EventDescription = "Could not find Page from the configuration of the Partial Widget Page Widget, located on page: " + widgetProperties.Page.NodeAliasPath
                             });
                         }
                         else
@@ -83,7 +83,7 @@ namespace PartialWidgetPage
                         model.Error = "Could not locate Page, please check configuration";
                         EventLogWriter.WriteLog(new EventLogData(EventTypeEnum.Warning, "PartialWidgetPageWidget", "PAGENOTFOUND")
                         {
-                            EventDescription = "Could not find Page from the configuration of the Parital Widget Page Widget, located on page: " + widgetProperties.Page.NodeAliasPath
+                            EventDescription = "Could not find Page from the configuration of the Partial Widget Page Widget, located on page: " + widgetProperties.Page.NodeAliasPath
                         });
                     }
                     else
@@ -102,7 +102,7 @@ namespace PartialWidgetPage
                         model.Error = "Could not locate Page, please check configuration";
                         EventLogWriter.WriteLog(new EventLogData(EventTypeEnum.Warning, "PartialWidgetPageWidget", "PAGENOTFOUND")
                         {
-                            EventDescription = "Could not find Page from the configuration of the Parital Widget Page Widget, located on page: " + widgetProperties.Page.NodeAliasPath
+                            EventDescription = "Could not find Page from the configuration of the Partial Widget Page Widget, located on page: " + widgetProperties.Page.NodeAliasPath
                         });
                     }
                     else

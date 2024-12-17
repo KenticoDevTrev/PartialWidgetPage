@@ -140,11 +140,11 @@ namespace BlankSite.MyRepositories
 {
     public class CustomPartialWidgetRenderingRetriever : IPartialWidgetRenderingRetriever
     {
-        public ParitalWidgetRendering GetRenderingViewComponent(string ClassName, int DocumentID = 0)
+        public PartialWidgetRendering GetRenderingViewComponent(string ClassName, int DocumentID = 0)
         {
             if (ClassName.Equals(Tab.CLASS_NAME))
             {
-                return new ParitalWidgetRendering()
+                return new PartialWidgetRendering()
                 {
                     ViewComponentData = new { },
                     ViewComponentName = "TabComponent",
@@ -153,7 +153,7 @@ namespace BlankSite.MyRepositories
             }
             if (ClassName.Equals(ShareableContent.CLASS_NAME))
            {
-               return new ParitalWidgetRendering()
+               return new PartialWidgetRendering()
                {
                    ViewComponentData = new { Testing = "Hello" },
                    ViewComponentName = "ShareableContentComponent",

@@ -115,7 +115,7 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
                         if (model.Renderer is null)
                         {
                             ModelState.AddModelError("",
-                                "There was no Renderer defined in the IPartialWidgetRenderingRetreiver.GetRenderingViewComponent for this class. Please have a developer return a ParitalWidgetRendering for this class prior to usage or set the mode to ServerSide.");
+                                "There was no Renderer defined in the IPartialWidgetRenderingRetreiver.GetRenderingViewComponent for this class. Please have a developer return a PartialWidgetRendering for this class prior to usage or set the mode to ServerSide.");
                         }
                     }
                     else
