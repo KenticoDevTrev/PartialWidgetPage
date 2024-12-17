@@ -13,8 +13,7 @@ public class PartialWidgetPageHelper(IPageBuilderDataContextRetriever pageBuilde
     IInfoProvider<ContentLanguageInfo> languageInfoProvider,
     IHttpContextAccessor httpContextAccessor,
     IWebPageDataContextInitializer dataContextInitializer,
-    IContentQueryExecutor executor,
-    IProgressiveCache cache)
+    IContentQueryExecutor executor)
     : IPartialWidgetPageHelper
 {
     private HttpContext Context => httpContextAccessor.HttpContext ?? 
@@ -44,51 +43,37 @@ public class PartialWidgetPageHelper(IPageBuilderDataContextRetriever pageBuilde
 
     public async Task ChangeContextAsync(int identifier, string languageName, string channel, CancellationToken token = default)
     {
-        async Task<RoutedWebPage?> GetCachedDataInternal(CacheSettings cs)
+        var contentName = GetContentTypeName(identifier);
+
+        var builder = new ContentItemQueryBuilder().ForContentType(contentName, q =>
+            {
+                q
+                    .Where(w => w.Where(where =>
+                        where.WhereEquals(nameof(IWebPageContentQueryDataContainer.WebPageItemID), identifier)))
+                    .ForWebsite(channel)
+                    .TopN(1);
+            })
+            .InLanguage(languageName);
+
+        var options = new ContentQueryExecutionOptions()
         {
-            if (cs.Cached)
+            ForPreview = Kentico.Preview().Enabled, 
+            IncludeSecuredItems = Kentico.Preview().Enabled
+        };
+
+        var webPage = (await executor.GetWebPageResult(builder, async (container) =>
+        {
+            var languageInfo =
+                await languageInfoProvider.GetAsync(container.ContentItemCommonDataContentLanguageID, token);
+
+            return new RoutedWebPage()
             {
-                cs.CacheDependency = CacheHelper.GetCacheDependency([$"webpageitem|byid|{identifier}", $"webpageitem|byid|{identifier}|{languageName}"]);
-            }
-
-            var contentName = GetContentTypeName(identifier);
-
-            var builder = new ContentItemQueryBuilder().ForContentType(contentName, q =>
-                {
-                    q
-                        .Where(w => w.Where(where =>
-                            where.WhereEquals(nameof(IWebPageContentQueryDataContainer.WebPageItemID), identifier)))
-                        .ForWebsite(channel)
-                        .TopN(1);
-                })
-                .InLanguage(languageName);
-
-            var options = new ContentQueryExecutionOptions()
-            {
-                ForPreview = Kentico.Preview().Enabled, 
-                IncludeSecuredItems = Kentico.Preview().Enabled
+                WebPageItemID = container.WebPageItemID, 
+                ContentTypeName = contentName,
+                LanguageName = languageInfo.ContentLanguageName
             };
-
-            var result = (await executor.GetWebPageResult(builder, async (container) =>
-            {
-                var languageInfo =
-                    await languageInfoProvider.GetAsync(container.ContentItemCommonDataContentLanguageID, token);
-
-                return new RoutedWebPage()
-                {
-                    WebPageItemID = container.WebPageItemID, 
-                    ContentTypeName = contentName,
-                    LanguageName = languageInfo.ContentLanguageName
-                };
-            }, options, token));
-            
-            return result.FirstOrDefault();
-        }
-
-        var cacheSettings = new CacheSettings(CacheHelper.CacheMinutes(),
-            "PWP", nameof(ChangeContext), identifier, languageName, channel);
-
-        var webPage = await cache.LoadAsync(GetCachedDataInternal, cacheSettings);
+        }, options, token))
+        .FirstOrDefault();
         
         if (webPage is not null)
         {

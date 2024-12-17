@@ -24,6 +24,10 @@
 	  </Content>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageVersion Update="kentico.xperience.webapp" />
+	</ItemGroup>
+
 	<Target Name="NpmInstall" BeforeTargets="NpmBuildClient">
 		<Exec Command="npm ci --no-audit --no-fund" WorkingDirectory="$(MSBuildProjectDirectory)" />
 	</Target>

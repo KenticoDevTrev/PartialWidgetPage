@@ -13,25 +13,23 @@ public class RenderPageTagHelper(
     IHtmlHelper htmlHelper)
     : PartialWidgetPageTagHelperBase(partialWidgetPageHelper, channelContext)
 {
-    private readonly IPartialWidgetPageHelper mPartialWidgetPageHelper = partialWidgetPageHelper;
-
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        if (context == null)
-            throw new ArgumentNullException(nameof(context));
-
-        if (output == null)
-            throw new ArgumentNullException(nameof(output));
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(output);
 
         output.TagName = null;
 
         ((IViewContextAware) htmlHelper).Contextualize(ViewContext);
 
+        var preservedContext = PartialWidgetPageHelper.GetCurrentContext();
+        
         try
         {
-            await mPartialWidgetPageHelper.ChangeContextAsync(WebPageId, Language, Channel, ViewContext.HttpContext.RequestAborted);
 
-            var model = await pageViewModelGenerator.GeneratePageViewModel(WebPageId, PreservedContext,
+            await PartialWidgetPageHelper.ChangeContextAsync(WebPageId, Language, Channel, ViewContext.HttpContext.RequestAborted);
+
+            var model = await pageViewModelGenerator.GeneratePageViewModel(WebPageId, preservedContext,
                 ViewContext.HttpContext.RequestAborted);
 
             if (model.ViewExists)
@@ -50,6 +48,6 @@ public class RenderPageTagHelper(
             output.SuppressOutput();
         }
 
-        mPartialWidgetPageHelper.RestoreContext(PreservedContext);
+        PartialWidgetPageHelper.RestoreContext(preservedContext);
     }
 }

@@ -17,11 +17,10 @@ namespace PartialWidgetPage
 
         
         protected readonly IPartialWidgetPageHelper PartialWidgetPageHelper = partialWidgetPageHelper;
-        protected readonly PreservedPageBuilderContext PreservedContext = partialWidgetPageHelper.GetCurrentContext();
-
+        
         public override void Init(TagHelperContext context)
         {
-            var (_, _, page) = PreservedContext;
+            var (_, _, page) = PartialWidgetPageHelper.GetCurrentContext();
 
             if (string.IsNullOrWhiteSpace(Language) && page is not null)
                 Language = page.LanguageName;

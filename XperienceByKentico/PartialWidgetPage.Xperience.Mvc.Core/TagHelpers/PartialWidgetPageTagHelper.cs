@@ -14,6 +14,8 @@ public class PartialWidgetPageTagHelper(IPartialWidgetPageHelper partialWidgetPa
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
+        var preservedContext = PartialWidgetPageHelper.GetCurrentContext();
+        
         // Render out inner content
         output.TagName = null;
 
@@ -37,6 +39,6 @@ public class PartialWidgetPageTagHelper(IPartialWidgetPageHelper partialWidgetPa
 
         
         // restore previous context
-        PartialWidgetPageHelper.RestoreContext(PreservedContext);
+        PartialWidgetPageHelper.RestoreContext(preservedContext);
     }
 }

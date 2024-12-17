@@ -10,4 +10,8 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\PartialWidgetPage.Xperience.Mvc.Core\PartialWidgetPage.Xperience.Mvc.Core.csproj" />
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageVersion Update="kentico.xperience.webapp" />
+	</ItemGroup>
 </Project>
