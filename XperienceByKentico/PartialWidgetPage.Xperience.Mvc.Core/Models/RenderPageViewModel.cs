@@ -1,8 +1,3 @@
 ﻿namespace PartialWidgetPage;
 
-public class RenderPageViewModel
-{
-    public bool ViewExists { get; set; }
-    public string ViewPath { get; set; }
-    public object ComponentViewModel { get; set; }
-}
+public record RenderPageViewModel(string ViewPath, object ComponentViewModel, bool ViewExists = false);

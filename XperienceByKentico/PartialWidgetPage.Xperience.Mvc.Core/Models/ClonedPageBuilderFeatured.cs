@@ -8,9 +8,8 @@ internal class ClonedPageBuilderFeature : IPageBuilderFeature
     {
         if (VirtualContext.IsPreviewLinkInitialized)
         {
-            Guid result;
-
-            if (Guid.TryParse((string) context.Request.QueryString["instance"], out result))
+            var instance = context.Request.QueryString["instance"].ToString();
+            if (Guid.TryParse(instance, out var result))
                 EditingInstanceIdentifier = result;
         }
 

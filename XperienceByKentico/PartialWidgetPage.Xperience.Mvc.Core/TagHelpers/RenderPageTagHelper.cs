@@ -1,49 +1,39 @@
 ﻿using CMS.Core;
+using CMS.Websites.Routing;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace PartialWidgetPage;
 
-public class RenderPageTagHelper : PartialWidgetPageTagHelperBase
+public class RenderPageTagHelper(
+    IPartialWidgetPageHelper partialWidgetPageHelper,
+    IEventLogService eventLogService,
+    IRenderPageViewModelGenerator pageViewModelGenerator,
+    IWebsiteChannelContext channelContext,
+    IHtmlHelper htmlHelper)
+    : PartialWidgetPageTagHelperBase(partialWidgetPageHelper, channelContext)
 {
-    private readonly IEventLogService mEventLogService;
-    private readonly IHtmlHelper mHtmlHelper;
-    private readonly IRenderPageViewModelGenerator mPageViewModelGenerator;
-
-    private readonly IPartialWidgetPageHelper mPartialWidgetPageHelper;
-
-    public RenderPageTagHelper(IPartialWidgetPageHelper partialWidgetPageHelper,
-        IEventLogService eventLogService,
-        IRenderPageViewModelGenerator pageViewModelGenerator,
-        IHtmlHelper htmlHelper) : base(partialWidgetPageHelper)
-    {
-        mPartialWidgetPageHelper = partialWidgetPageHelper;
-        mPageViewModelGenerator = pageViewModelGenerator;
-        mHtmlHelper = htmlHelper;
-        mEventLogService = eventLogService;
-    }
-
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        if (context == null)
-            throw new ArgumentNullException(nameof(context));
-
-        if (output == null)
-            throw new ArgumentNullException(nameof(output));
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(output);
 
         output.TagName = null;
 
-        ((IViewContextAware) mHtmlHelper).Contextualize(ViewContext);
+        ((IViewContextAware) htmlHelper).Contextualize(ViewContext);
 
+        var preservedContext = PartialWidgetPageHelper.GetCurrentContext();
+        
         try
         {
-            mPartialWidgetPageHelper.ChangeContext(WebPageId, Language);
 
-            var model = await mPageViewModelGenerator.GeneratePageViewModel(WebPageId, PreservedContext,
+            await PartialWidgetPageHelper.ChangeContextAsync(WebPageId, Language, Channel, ViewContext.HttpContext.RequestAborted);
+
+            var model = await pageViewModelGenerator.GeneratePageViewModel(WebPageId, preservedContext,
                 ViewContext.HttpContext.RequestAborted);
 
             if (model.ViewExists)
-                output.Content.SetHtmlContent(await mHtmlHelper.PartialAsync(model.ViewPath,
+                output.Content.SetHtmlContent(await htmlHelper.PartialAsync(model.ViewPath,
                     model.ComponentViewModel));
             else
                 output.Content.SetHtmlContent(@$"
@@ -54,10 +44,10 @@ public class RenderPageTagHelper : PartialWidgetPageTagHelperBase
         }
         catch (Exception ex)
         {
-            mEventLogService.LogException("PartialWidgetPage", "RENDER", ex);
+            eventLogService.LogException("PartialWidgetPage", "RENDER", ex);
             output.SuppressOutput();
         }
 
-        mPartialWidgetPageHelper.RestoreContext(PreservedContext);
+        PartialWidgetPageHelper.RestoreContext(preservedContext);
     }
 }

@@ -15,12 +15,13 @@ public static class ServiceCollectionExtensions
         return services.AddPartialWidgetPageCore<DefaultPartialWidgetRenderingRetriever>();
     }
 
-    public static IServiceCollection AddPartialWidgetPageCore<TRenderer>(this IServiceCollection services)
+    private static IServiceCollection AddPartialWidgetPageCore<TRenderer>(this IServiceCollection services)
         where TRenderer : class, IPartialWidgetRenderingRetriever
     {
         return services
             .AddSingleton<IPartialWidgetRenderingRetriever, TRenderer>()
             .AddSingleton<IPartialWidgetPageHelper, PartialWidgetPageHelper>()
+            .AddSingleton<ITagHelperComponent, AjaxPartialWidgetTagHelperComponent>()
             .AddSingleton<IRenderPageViewModelGenerator, RenderPageViewModelGenerator>();
     }
 }

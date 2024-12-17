@@ -14,12 +14,23 @@ public interface IPartialWidgetPageHelper
     /// </summary>
     void ChangeContext();
 
+    
     /// <summary>
     ///     Changes the context to the given identifier, this also sets Edit Mode to false during this rendering.
     /// </summary>
     /// <param name="identifier">The identifier of the page</param>
     /// <param name="language">Then language identifier of the page</param>
-    void ChangeContext(int identifier, string language);
+    /// <param name="channel">Then website channel of the page</param>
+    void ChangeContext(int identifier, string language, string channel);
+    
+    /// <summary>
+    ///     Changes the context to the given identifier, this also sets Edit Mode to false during this rendering.
+    /// </summary>
+    /// <param name="identifier">The identifier of the page</param>
+    /// <param name="languageName">Then language identifier of the page</param>
+    /// <param name="channel">Then website channel of the page</param>
+    /// <param name="token">The cancellation token for the request</param>
+    Task ChangeContextAsync(int identifier, string languageName, string channel, CancellationToken token = default);
 
     /// <summary>
     ///     Restores the Page Builder Context to the given previous context
@@ -34,12 +45,12 @@ public interface IPartialWidgetPageHelper
     /// </summary>
     /// <param name="layout">The given Layout to return if Edit Mode</param>
     /// <returns>The Layout if it's in Edit mode, null if not (so renders as a partial)</returns>
-    string LayoutIfEditMode(string layout);
+    string? LayoutIfEditMode(string layout);
 
     /// <summary>
     ///     Returns the given Layout if this is called from a Partial Widget Page Ajax call.
     /// </summary>
     /// <param name="layout">The given Layout to return if it's not called from a partial widget page Ajax call</param>
     /// <returns>The Layout if it's not called from an Ajax call (so renders as a partial)</returns>
-    string LayoutIfNotAjax(string layout);
+    string? LayoutIfNotAjax(string layout);
 }

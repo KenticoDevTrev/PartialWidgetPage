@@ -1,106 +1,131 @@
-﻿namespace PartialWidgetPage;
+﻿using CMS.ContentEngine;
+using CMS.Core;
+using CMS.Websites.Routing;
+using Microsoft.AspNetCore.Routing;
 
-public class PartialWidgetPageHelper : IPartialWidgetPageHelper
+namespace PartialWidgetPage;
+
+public class PartialWidgetPageHelper(IPageBuilderDataContextRetriever pageBuilderDataContextRetriever,
+    IWebPageDataContextRetriever webPageDataContextRetriever,
+    IHttpContextRetriever httpContextRetriever,
+    IInfoProvider<WebPageItemInfo> webPageItemInfoProvider,
+    IInfoProvider<ContentItemInfo> contentItemInfoProvider,
+    IInfoProvider<ContentLanguageInfo> languageInfoProvider,
+    IHttpContextAccessor httpContextAccessor,
+    IWebPageDataContextInitializer dataContextInitializer,
+    IContentQueryExecutor executor)
+    : IPartialWidgetPageHelper
 {
-    private readonly IHttpContextRetriever mContextRetriever;
-    private readonly IWebPageDataContextInitializer mDataContextInitializer;
-    private readonly IHttpContextAccessor mHttpContextAccessor;
-    private readonly IPageBuilderDataContextRetriever mPageBuilderDataContextRetriever;
-    private readonly IWebPageDataContextRetriever mWebPageDataContextRetriever;
-
-    private readonly IInfoProvider<WebPageItemInfo> mMWebPageItemInfoProvider;
-
-    public PartialWidgetPageHelper(
-        IPageBuilderDataContextRetriever pageBuilderDataContextRetriever,
-        IWebPageDataContextRetriever webPageDataContextRetriever,
-        IHttpContextRetriever httpContextRetriever,
-        IInfoProvider<WebPageItemInfo> webPageItemInfoProvider,
-        IHttpContextAccessor httpContextAccessor, 
-        IWebPageDataContextInitializer dataContextInitializer)
-    {
-        mPageBuilderDataContextRetriever = pageBuilderDataContextRetriever;
-        mWebPageDataContextRetriever = webPageDataContextRetriever;
-        mContextRetriever = httpContextRetriever;
-        mMWebPageItemInfoProvider = webPageItemInfoProvider;
-        mHttpContextAccessor = httpContextAccessor;
-        mDataContextInitializer = dataContextInitializer;
-    }
-
+    private HttpContext Context => httpContextAccessor.HttpContext ?? 
+                                   throw new ArgumentNullException(nameof(httpContextAccessor));
+    private IFeatureSet Kentico => Context.Kentico();
+    
     public PreservedPageBuilderContext GetCurrentContext()
     {
-        var context = mContextRetriever.GetContext();
-        var pageBuilderContext = mPageBuilderDataContextRetriever.Retrieve();
+        var pageBuilderContext = pageBuilderDataContextRetriever.Retrieve();
 
-        RoutedWebPage page = null;
-        if (mWebPageDataContextRetriever.TryRetrieve(out var webPageContext)) page = webPageContext.WebPage;
-
-        return new PreservedPageBuilderContext
+        RoutedWebPage? page = null;
+        
+        if (webPageDataContextRetriever.TryRetrieve(out var webPageContext))
         {
-            PageBuilderFeature = context.Kentico().GetFeature<IPageBuilderFeature>(),
-            PageBuilderContext = pageBuilderContext,
-            Page = page
-        };
+            page = webPageContext.WebPage;
+        }
+
+        var featureSet = Kentico.GetFeature<IPageBuilderFeature>();
+        return new PreservedPageBuilderContext(featureSet, pageBuilderContext, page);
     }
 
-    public void ChangeContext()
-    {
+    public void ChangeContext() => 
         ChangeContextInternal();
-    }
+    
+    public void ChangeContext(int identifier, string language, string channel) => 
+        ChangeContextAsync(identifier, language, channel).GetAwaiter().GetResult();
 
-    public void ChangeContext(int id, string language)
+    public async Task ChangeContextAsync(int identifier, string languageName, string channel, CancellationToken token = default)
     {
-        var wbi = mMWebPageItemInfoProvider.Get(id);
+        var contentName = GetContentTypeName(identifier);
 
-        var routedPage = new RoutedWebPage
+        var builder = new ContentItemQueryBuilder().ForContentType(contentName, q =>
+            {
+                q
+                    .Where(w => w.Where(where =>
+                        where.WhereEquals(nameof(IWebPageContentQueryDataContainer.WebPageItemID), identifier)))
+                    .ForWebsite(channel)
+                    .TopN(1);
+            })
+            .InLanguage(languageName);
+
+        var options = new ContentQueryExecutionOptions()
         {
-            WebPageItemID = wbi.WebPageItemID,
-            ContentTypeName = wbi.ClassName,
-            LanguageName = language
+            ForPreview = Kentico.Preview().Enabled, 
+            IncludeSecuredItems = Kentico.Preview().Enabled
         };
 
-        ChangeContextInternal(routedPage);
+        var webPage = (await executor.GetWebPageResult(builder, async (container) =>
+        {
+            var languageInfo =
+                await languageInfoProvider.GetAsync(container.ContentItemCommonDataContentLanguageID, token);
+
+            return new RoutedWebPage()
+            {
+                WebPageItemID = container.WebPageItemID, 
+                ContentTypeName = contentName,
+                LanguageName = languageInfo.ContentLanguageName
+            };
+        }, options, token))
+        .FirstOrDefault();
+        
+        if (webPage is not null)
+        {
+            ChangeContextInternal(webPage);
+        }
     }
 
     public void RestoreContext(PreservedPageBuilderContext previousContext)
     {
-        var context = mContextRetriever.GetContext();
         // Restore
-
-        context.Kentico().SetFeature(previousContext.PageBuilderFeature);
+        var context = httpContextRetriever.GetContext();
+        
+        Kentico.SetFeature(previousContext.PageBuilderFeature);
 
         context.Items[PAGE_BUILDER_DATA_CONTEXT_KEY] = previousContext.PageBuilderContext;
         context.Items[WEB_PAGE_DATA_CONTEXT_KEY] = previousContext.Page;
     }
 
-    public string LayoutIfEditMode(string layout)
+    public string? LayoutIfEditMode(string layout)
     {
-        return mHttpContextAccessor.HttpContext.PartialWidgetPage().LayoutIfEditMode(layout);
+        return Context.PartialWidgetPage().LayoutIfEditMode(layout);
     }
 
-    public string LayoutIfNotAjax(string layout)
+    public string? LayoutIfNotAjax(string layout)
     {
-        return mHttpContextAccessor.HttpContext.PartialWidgetPage().LayoutIfNotAjax(layout);
+        return Context.PartialWidgetPage().LayoutIfNotAjax(layout);
     }
 
-    private void ChangeContextInternal(RoutedWebPage webPage = null)
+    private void ChangeContextInternal(RoutedWebPage? webPage = null)
     {
-        var context = mContextRetriever.GetContext();
-        var options = context.Kentico().PageBuilder().Options;
-
+        var context = httpContextRetriever.GetContext();
+        
+        var feature = Kentico.GetFeature<IPageBuilderFeature>();
+        
         var pageBuilderContext = new PageBuilderDataContext
         {
-            Options = options,
-            EditMode = false
+            Options = feature.Options,
+            EditMode = false,
         };
 
         context.Items[PAGE_BUILDER_DATA_CONTEXT_KEY] = pageBuilderContext;
 
-        if (webPage == null)
-            context.Items[WEB_PAGE_DATA_CONTEXT_KEY] = null;
-        else
-            mDataContextInitializer.Initialize(webPage);
-
+        dataContextInitializer.Initialize(webPage);
+        
         //Store new cloned context to change edit mode for rendered page builder interface
-        context.Kentico().SetFeature<IPageBuilderFeature>(new ClonedPageBuilderFeature(context, pageBuilderContext));
+        Kentico.SetFeature<IPageBuilderFeature>(new ClonedPageBuilderFeature(context, pageBuilderContext));
+    }
+    
+    private string GetContentTypeName(int webPageItemId)
+    {
+        return DataClassInfoProvider.GetClassName(contentItemInfoProvider
+            .Get(webPageItemInfoProvider
+                .Get(webPageItemId).WebPageItemContentItemID).ContentItemContentTypeID);
     }
 }

@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "name": "partialwidgetpage",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^5.4.2"
+  }
+}

@@ -1,8 +1,7 @@
 ﻿namespace PartialWidgetPage;
 
-public class PreservedPageBuilderContext
-{
-    public IPageBuilderFeature PageBuilderFeature { get; set; }
-    public IPageBuilderDataContext PageBuilderContext { get; set; }
-    public RoutedWebPage Page { get; set; }
-}
+public record PreservedPageBuilderContext(
+    IPageBuilderFeature PageBuilderFeature,
+    IPageBuilderDataContext PageBuilderContext,
+    RoutedWebPage? Page);
+
