@@ -6,7 +6,8 @@ namespace PartialWidgetPage
 {
     public class PartialWidgetPageTagHelperBase(
         IPartialWidgetPageHelper partialWidgetPageHelper,
-        IWebsiteChannelContext channelContext
+        IWebsiteChannelContext channelContext,
+        IPreferredLanguageRetriever preferredLanguageRetriever
     ) : TagHelper
     {
         [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; } = null!;
@@ -22,8 +23,12 @@ namespace PartialWidgetPage
         {
             var (_, _, page) = PartialWidgetPageHelper.GetCurrentContext();
 
-            if (string.IsNullOrWhiteSpace(Language) && page is not null)
+            if (string.IsNullOrWhiteSpace(Language) && page is not null) {
                 Language = page.LanguageName;
+            }
+            if(string.IsNullOrWhiteSpace(Language)) {
+                Language = preferredLanguageRetriever.Get();
+            }
 
             base.Init(context);
         }

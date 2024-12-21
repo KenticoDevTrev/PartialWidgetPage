@@ -10,8 +10,9 @@ public class RenderPageTagHelper(
     IEventLogService eventLogService,
     IRenderPageViewModelGenerator pageViewModelGenerator,
     IWebsiteChannelContext channelContext,
-    IHtmlHelper htmlHelper)
-    : PartialWidgetPageTagHelperBase(partialWidgetPageHelper, channelContext)
+    IHtmlHelper htmlHelper,
+    IPreferredLanguageRetriever preferredLanguageRetriever)
+    : PartialWidgetPageTagHelperBase(partialWidgetPageHelper, channelContext, preferredLanguageRetriever)
 {
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {

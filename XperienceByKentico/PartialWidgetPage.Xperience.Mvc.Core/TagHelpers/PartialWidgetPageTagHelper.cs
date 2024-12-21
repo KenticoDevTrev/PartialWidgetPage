@@ -3,9 +3,11 @@
 namespace PartialWidgetPage;
 
 [HtmlTargetElement("inlinewidgetpage", TagStructure = TagStructure.NormalOrSelfClosing)]
-public class PartialWidgetPageTagHelper(IPartialWidgetPageHelper partialWidgetPageHelper, IWebsiteChannelContext channelContext)
-    : PartialWidgetPageTagHelperBase(partialWidgetPageHelper, channelContext)
+public class PartialWidgetPageTagHelper(IPartialWidgetPageHelper partialWidgetPageHelper, IWebsiteChannelContext channelContext, IPreferredLanguageRetriever preferredLanguageRetriever)
+    : PartialWidgetPageTagHelperBase(partialWidgetPageHelper, channelContext, preferredLanguageRetriever)
 {
+    private readonly IPreferredLanguageRetriever _preferredLanguageRetriever = preferredLanguageRetriever;
+
     /// <summary>
     ///     If False, will not set the Page Context to the Node/DocumentID (if the View Component sets this). Defaults to True
     ///     where it sets it given the Page / DocumentID
@@ -18,13 +20,13 @@ public class PartialWidgetPageTagHelper(IPartialWidgetPageHelper partialWidgetPa
         
         // Render out inner content
         output.TagName = null;
-
+        
         if (InitializeDocumentPrior)
         {
             if (WebPageId > 0)
                 await PartialWidgetPageHelper.ChangeContextAsync(
                     WebPageId,
-                    Language,
+                    string.IsNullOrWhiteSpace(Language) ? _preferredLanguageRetriever.Get() : Language,
                     Channel,
                     ViewContext.HttpContext.RequestAborted
                 );

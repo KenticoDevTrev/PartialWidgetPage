@@ -18,50 +18,43 @@ using PartialWidgetPage;
 
 namespace PartialWidgetPage;
 
-public class PartialWidgetPageWidgetViewComponent : ViewComponent
+public class PartialWidgetPageWidgetViewComponent(
+    IPartialWidgetRenderingRetriever partialWidgetRenderingRetriever,
+    IInfoProvider<WebPageItemInfo> webPageInfoProvider,
+    IWebPageUrlRetriever urlRetriever,
+    IPreferredLanguageRetriever preferredLanguageRetriever,
+    IWebsiteChannelContext websiteChannelContext,
+    IProgressiveCache progressiveCache) : ViewComponent
 {
-    private readonly IPartialWidgetRenderingRetriever mPartialWidgetRenderingRetriever;
-    private readonly IPreferredLanguageRetriever mPreferredLanguageRetriever;
-    private readonly IWebsiteChannelContext mWebsiteChannelContext;
-    private readonly IWebPageUrlRetriever mUrlRetriever;
-
-    private readonly IInfoProvider<WebPageItemInfo> mWebPageInfoProvider;
-
-    public PartialWidgetPageWidgetViewComponent(
-        IPartialWidgetRenderingRetriever partialWidgetRenderingRetriever,
-        IInfoProvider<WebPageItemInfo> webPageInfoProvider,
-        IWebPageUrlRetriever urlRetriever,
-        IPreferredLanguageRetriever preferredLanguageRetriever, 
-        IWebsiteChannelContext websiteChannelContext)
-    {
-        mPartialWidgetRenderingRetriever = partialWidgetRenderingRetriever;
-        mWebPageInfoProvider = webPageInfoProvider;
-        mUrlRetriever = urlRetriever;
-        mPreferredLanguageRetriever = preferredLanguageRetriever;
-        mWebsiteChannelContext = websiteChannelContext;
-    }
+    private readonly IPartialWidgetRenderingRetriever _partialWidgetRenderingRetriever = partialWidgetRenderingRetriever;
+    private readonly IPreferredLanguageRetriever _preferredLanguageRetriever = preferredLanguageRetriever;
+    private readonly IWebsiteChannelContext _websiteChannelContext = websiteChannelContext;
+    private readonly IProgressiveCache _progressiveCache = progressiveCache;
+    private readonly IWebPageUrlRetriever _urlRetriever = urlRetriever;
+    private readonly IInfoProvider<WebPageItemInfo> _webPageInfoProvider = webPageInfoProvider;
 
     public async Task<IViewComponentResult> InvokeAsync(
         ComponentViewModel<PartialWidgetPageWidgetModel> widgetProperties)
     {
-        if (widgetProperties == null)
-            throw new ArgumentNullException(nameof(widgetProperties));
+        ArgumentNullException.ThrowIfNull(widgetProperties, nameof(widgetProperties));
 
         var properties = widgetProperties.Properties;
 
         //Set language resolved as preferred language
         var model = new PartialWidgetPageViewComponentModel()
         {
-            Language = mPreferredLanguageRetriever.Get()
+            Language = _preferredLanguageRetriever.Get()
         };
 
         //if language is selected from properties override the preferred language
-        if (!properties.UsePreferredLanguage && properties.Language.Any())
+        if (!properties.UsePreferredLanguage && properties.Language.Any()) { 
             model.Language = properties.Language.First().ObjectCodeName;
+        }
 
-        if (!string.IsNullOrWhiteSpace(properties.Identifier))
+        if (!string.IsNullOrWhiteSpace(properties.Identifier)) { 
             model.Identifier = properties.Identifier;
-        
+        }
+
         if (Enum.TryParse<PartialWidgetPageWidgetRenderMode>(properties.RenderMode, out var result))
         {
             var page = await GetPage(properties, ViewContext.HttpContext.RequestAborted);
@@ -77,8 +70,8 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
                     }
                     else if (page is not null)
                     {
-                        var url = await mUrlRetriever.Retrieve(page.WebPageItemGUID, model.Language,
-                            mWebsiteChannelContext.IsPreview, ViewContext.HttpContext.RequestAborted);
+                        var url = await _urlRetriever.Retrieve(page.WebPageItemGUID, model.Language,
+                            _websiteChannelContext.IsPreview, ViewContext.HttpContext.RequestAborted);
 
                         model.AjaxUrl = url.RelativePath;
                     }
@@ -104,12 +97,15 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
 
                     if (page is not null)
                     {
-                        var info = await mWebPageInfoProvider.GetAsync(page.WebPageItemID,
-                            ViewContext.HttpContext.RequestAborted);
+                        var info = await _progressiveCache.LoadAsync(async (cs, token) => {
+                            if(cs.Cached) {
+                                cs.CacheDependency = CacheHelper.GetCacheDependency($"WebPageItem|byid|{page.WebPageItemID}");
+                            }
+                            return await _webPageInfoProvider.GetAsync(page.WebPageItemID,token);
+                        }, new CacheSettings(60, "PartialWidgetPage_GetWebPageInfo", page.WebPageItemID), ViewContext.HttpContext.RequestAborted);
+                        
                         var className = info.ClassName;
-                        model.Renderer =
-                            mPartialWidgetRenderingRetriever.GetRenderingViewComponent(className,
-                                page.WebPageItemID);
+                        model.Renderer = _partialWidgetRenderingRetriever.GetRenderingViewComponent(className, page.WebPageItemID);
                         model.WebPageId = page.WebPageItemID;
 
                         if (model.Renderer is null)
@@ -144,7 +140,7 @@ public class PartialWidgetPageWidgetViewComponent : ViewComponent
             var webPageGuid = widgetModel.Page.First().WebPageGuid;
 
             return await CacheHelper.CacheAsync(
-                async cs => await mWebPageInfoProvider.GetAsync(webPageGuid, token),
+                async cs => await _webPageInfoProvider.GetAsync(webPageGuid, token),
                 new CacheSettings(CacheHelper.CacheMinutes(), $"PartialWidgetPageWidget_GetPage|{webPageGuid}")
                 {
                     CacheDependency = CacheHelper.GetCacheDependency($"webpageitem|byguid|{webPageGuid}")

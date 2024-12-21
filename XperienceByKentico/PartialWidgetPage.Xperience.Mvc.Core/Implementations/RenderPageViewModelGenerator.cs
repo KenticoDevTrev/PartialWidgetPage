@@ -10,15 +10,18 @@ internal class RenderPageViewModelGenerator(
     ICompositeViewEngine compositeViewEngine)
     : IRenderPageViewModelGenerator
 {
-    private const string VIEW_DEFAULT_PATH = "~/Views/Shared/ContentTypes/{0}.cshtml";
-    private readonly IComponentDefinitionProvider<PageTemplateDefinition> mComponentDefinitionProvider = new ComponentDefinitionProvider<PageTemplateDefinition>();
-
+    private const string _VIEW_DEFAULT_PATH = "~/Views/Shared/ContentTypes/{0}.cshtml";
+    private readonly ComponentDefinitionProvider<PageTemplateDefinition> _componentDefinitionProvider = new();
+    private readonly IPageBuilderDataContextRetriever _pageBuilderDataContextRetriever = pageBuilderDataContextRetriever;
+    private readonly IWebPageDataContextRetriever _webPageDataContextRetriever = webPageDataContextRetriever;
+    private readonly IInfoProvider<WebPageItemInfo> _webPageItemInfoProvider = webPageItemInfoProvider;
+    private readonly ICompositeViewEngine _compositeViewEngine = compositeViewEngine;
 
     public async Task<RenderPageViewModel> GeneratePageViewModel(int pageId,
         PreservedPageBuilderContext preservedPageBuilderContext, CancellationToken token = default)
     {
-        var webPageContext = webPageDataContextRetriever.Retrieve();
-        var pageBuilderContext = pageBuilderDataContextRetriever.Retrieve();
+        var webPageContext = _webPageDataContextRetriever.Retrieve();
+        var pageBuilderContext = _pageBuilderDataContextRetriever.Retrieve();
 
 
         var path = await GetViewPath(pageId, token);
@@ -28,7 +31,7 @@ internal class RenderPageViewModelGenerator(
         //page uses page template
         if (pageBuilderContext.Configuration.PageTemplate != null)
         {
-            var definition = mComponentDefinitionProvider.GetAll().SingleOrDefault(x =>
+            var definition = _componentDefinitionProvider.GetAll().SingleOrDefault(x =>
                 x.Identifier.Equals(pageBuilderContext.Configuration.PageTemplate.Identifier,
                     StringComparison.OrdinalIgnoreCase));
 
@@ -67,7 +70,7 @@ internal class RenderPageViewModelGenerator(
 
         model = model with
         {
-            ViewExists = compositeViewEngine.GetView(null, model.ViewPath, false).Success
+            ViewExists = _compositeViewEngine.GetView(null, model.ViewPath, false).Success
         };
 
         return model;
@@ -75,6 +78,6 @@ internal class RenderPageViewModelGenerator(
 
     private async Task<string> GetViewPath(int pageId, CancellationToken token = default)
     {
-        return string.Format(VIEW_DEFAULT_PATH, (await webPageItemInfoProvider.RetrieveClassName(pageId, token: token)).Replace('.', '_'));
+        return string.Format(_VIEW_DEFAULT_PATH, (await _webPageItemInfoProvider.RetrieveClassName(pageId, token: token)).Replace('.', '_'));
     }
 }

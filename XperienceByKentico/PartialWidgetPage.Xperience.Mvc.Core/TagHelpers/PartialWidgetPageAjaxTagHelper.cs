@@ -1,5 +1,4 @@
 ﻿#nullable enable
-using System.Text.RegularExpressions;
 using CMS.Websites.Routing;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -10,7 +9,8 @@ namespace PartialWidgetPage;
 public class PartialWidgetPageAjaxTagHelper(
     IWebPageUrlRetriever pageUrlRetriever,
     IPreferredLanguageRetriever contentLanguageRetriever,
-    IWebsiteChannelContext websiteChannelContext)
+    IWebsiteChannelContext websiteChannelContext,
+    IProgressiveCache progressiveCache)
     : TagHelper
 {
     [ViewContext] [HtmlAttributeNotBound] 
@@ -52,15 +52,22 @@ public class PartialWidgetPageAjaxTagHelper(
         
         if (WebPageId > 0)
         {
-            var webPageUrl = await pageUrlRetriever
-                .Retrieve(WebPageId, Language, websiteChannelContext.IsPreview, ViewContext.HttpContext.RequestAborted);
-
-            if (webPageUrl != null)
+            var webPageUrl = await progressiveCache.LoadAsync(async (cs, token) => {
+                if (cs.Cached) {
+                    cs.CacheDependency = CacheHelper.GetCacheDependency($"webpageitem|byid|{WebPageId}");
+                }
+                return await pageUrlRetriever
+                .Retrieve(WebPageId, Language, websiteChannelContext.IsPreview, token);
+            }, new CacheSettings(1440, "PartialWidgetPage_GetWebpageUrl", WebPageId, Language, websiteChannelContext.IsPreview), ViewContext.HttpContext.RequestAborted);
+            
+            if (webPageUrl != null) { 
                 AjaxUrl = webPageUrl.RelativePath;
+            }
         }
 
-        if (!string.IsNullOrWhiteSpace(RelativeUrl))
+        if (!string.IsNullOrWhiteSpace(RelativeUrl)) { 
             AjaxUrl = RelativeUrl;
+        }
 
         if (!string.IsNullOrWhiteSpace(AjaxUrl))
         {
