@@ -1,8 +1,10 @@
 ## Installation Xperience By Kentico [.Net Core] 28.0.0
 1. Install the [XperienceCommunity.PartialWidgetPage](https://www.nuget.org/packages/XperienceCommunity.PartialWidgetPage) Nuget Package on your Xperience by Kentico site
-2. In your Startup, add `services.AddPartialWidgetPage();` or `services.AddPartialWidgetPage<CustomPartialWidgetRenderingRetriever>();`
+2. In your Startup, add `services.AddPartialWidgetPage(addAjaxPWPJs: true|false);` or `services.AddPartialWidgetPage<CustomPartialWidgetRenderingRetriever>(addAjaxPWPJs: true|false);`
 3. Add this TagHelper to your View or _ViewImport.cshtml: `@addTagHelper *, XperienceCommunity.PartialWidgetPage`
 4. You may also want to add a Using for the PartialWidgetPage namespace: `@using PartialWidgetPage`
+
+The `addAjaxPWPJs`, if true, will inject the Partial Widget Page Ajax script into the header of each page so it is available.  You can set this to false and individually add the script when applicable if you wish (see [pwp.js](src/js/pwp.js) or the minified content in [AjaxPartialWidgetTagHelperComponent.cs](TagHelpers/AjaxPartialWidgetTagHelperComponent.cs))
 
 To install the Partial Widget Page Widget as well...
 1. Install the [`XperienceCommunity.PartialWidgetPage.Widget] Nuget Package on your Xperience by Kentico.`

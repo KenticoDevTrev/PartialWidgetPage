@@ -21,13 +21,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Update="src\js\pwp.js">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-	  </Content>
-	</ItemGroup>
-
-	<ItemGroup>
 	  <PackageVersion Update="kentico.xperience.webapp" />
 	</ItemGroup>
 

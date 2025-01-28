@@ -133,12 +133,12 @@ public class PartialWidgetPageHelper(IPageBuilderDataContextRetriever pageBuilde
                 cs.CacheDependency = CacheHelper.GetCacheDependency($"webpageitem|bychannel|{channel}|all");
             }
 
-            var query = @"select WebPageItemID, ContentItemTypeID from CMS_WebPageItem
+            var query = @"select WebPageItemID, ContentItemContentTypeID from CMS_WebPageItem
 inner join CMS_ContentItem on ContentItemID = WebPageItemContentItemID
 inner join CMS_Channel on ChannelID = ContentItemChannelID
-where ChannelName = @ChannelName and ContentItemTypeID is not null";
+where ChannelName = @ChannelName and ContentItemContentTypeID is not null";
             return DbDataReaderToDataSet(await ConnectionHelper.ExecuteReaderAsync(query, new QueryDataParameters() { { "@ChannelName", channel } }, QueryTypeEnum.SQLQuery, System.Data.CommandBehavior.Default, CancellationToken.None))
-            .Tables[0].Rows.Cast<DataRow>().ToDictionary(key => (int)key["WebPageItemID"], value => (int)value["ContentItemTypeID"]);
+            .Tables[0].Rows.Cast<DataRow>().ToDictionary(key => (int)key["WebPageItemID"], value => (int)value["ContentItemContentTypeID"]);
 
         }, new CacheSettings(360, "PartialWidgetPage_GetWebPageItemIDToContentTypeID", channel));
 
