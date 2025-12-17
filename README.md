@@ -1,4 +1,4 @@
-## Installation Xperience By Kentico [.Net Core] 28.0.0
+## Installation Xperience By Kentico [.Net Core] 31.0.0
 1. Install the [XperienceCommunity.PartialWidgetPage](https://www.nuget.org/packages/XperienceCommunity.PartialWidgetPage) Nuget Package on your Xperience by Kentico site
 2. In your Startup, add `services.AddPartialWidgetPage(addAjaxPWPJs: true|false);` or `services.AddPartialWidgetPage<CustomPartialWidgetRenderingRetriever>(addAjaxPWPJs: true|false);`
 3. Add this TagHelper to your View or _ViewImport.cshtml: `@addTagHelper *, XperienceCommunity.PartialWidgetPage`
@@ -10,6 +10,14 @@ To install the Partial Widget Page Widget as well...
 1. Install the [`XperienceCommunity.PartialWidgetPage.Widget] Nuget Package on your Xperience by Kentico.`
 2.   Allow the widget with code name `PartialWidgetPage.PartialWidget` into any zones with a specified widget list.
 3. Optionally, if you wish to use Server Side rendering with custom view component logic, implement your own  `IPartialWidgetRenderingRetriever`  (see examples below) and add it to your Startup file: `services.AddSingleton(typeof(IPartialWidgetRenderingRetriever), typeof(CustomPartialWidgetRenderingRetriever));`	
+
+## Library Version Matrix
+
+| Xperience Version | Library Version |
+| ----------------- | --------------- |
+| >= 31.0.0         | 31.x            |
+|    30.0.0-30.12.3 | 30.x            |
+|    28.0.0-29.7.*  | 28.x            |
 
 ## WARNING: INFINITE LOOPS
 When using this tool, be very careful not to render a widget page that render itself or the parent, thus causing an infinite loop of rendering.  If you editing a page that will be used in the Header and Footer, for example, please make a different Layout view that does not render the Header or Footer on it.

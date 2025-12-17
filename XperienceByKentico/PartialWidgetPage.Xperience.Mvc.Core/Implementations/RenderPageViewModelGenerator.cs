@@ -7,15 +7,16 @@ internal class RenderPageViewModelGenerator(
     IPageBuilderDataContextRetriever pageBuilderDataContextRetriever,
     IWebPageDataContextRetriever webPageDataContextRetriever,
     IInfoProvider<WebPageItemInfo> webPageItemInfoProvider,
-    ICompositeViewEngine compositeViewEngine)
+    ICompositeViewEngine compositeViewEngine,
+    Kentico.Builder.Web.Mvc.IComponentDefinitionProvider<PageTemplateDefinition> componentDefinitionProvider)
     : IRenderPageViewModelGenerator
 {
     private const string _VIEW_DEFAULT_PATH = "~/Views/Shared/ContentTypes/{0}.cshtml";
-    private readonly ComponentDefinitionProvider<PageTemplateDefinition> _componentDefinitionProvider = new();
     private readonly IPageBuilderDataContextRetriever _pageBuilderDataContextRetriever = pageBuilderDataContextRetriever;
     private readonly IWebPageDataContextRetriever _webPageDataContextRetriever = webPageDataContextRetriever;
     private readonly IInfoProvider<WebPageItemInfo> _webPageItemInfoProvider = webPageItemInfoProvider;
     private readonly ICompositeViewEngine _compositeViewEngine = compositeViewEngine;
+    private readonly Kentico.Builder.Web.Mvc.IComponentDefinitionProvider<PageTemplateDefinition> _componentDefinitionProvider = componentDefinitionProvider;
 
     public async Task<RenderPageViewModel> GeneratePageViewModel(int pageId,
         PreservedPageBuilderContext preservedPageBuilderContext, CancellationToken token = default)
